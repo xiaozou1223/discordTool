@@ -1,0 +1,7 @@
+.env
+/mongodb/*
+!/mongodb/.mongo
+/postgres/*
+!/postgres/.postgres
+/redis/*
+!/redis/.redis
