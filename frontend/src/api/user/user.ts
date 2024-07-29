@@ -5,6 +5,7 @@ import type { ReadGuildsResponseDto, ReadUserResponseDto } from './dto/read-user
 import type { AxiosError, AxiosResponse } from 'axios';
 import axios from 'axios';
 import type { UpdateUserDto } from './dto/update-user.dto';
+import type { APIUser } from 'discord-api-types/v10';
 
 export async function loginAPI(account: string, password: string) {
   try {
@@ -41,3 +42,5 @@ export async function getGuildsApi(account: string): Promise<ApiResponse<ReadGui
     throw (err.response as AxiosResponse).data;
   }
 }
+
+

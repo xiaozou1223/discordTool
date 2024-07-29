@@ -2,21 +2,22 @@
     <div>
         <h3 v-if="channels.length === 0">載入中...</h3>
             <div v-else v-for="parentChannel of parentChannels" >
-                <div class="row channel-row" style="margin-right: 0px;margin-left: 0px;margin-top: 10px;" data-bs-toggle="collapse" :data-bs-target="`#collapse-${parentChannel.id}`" @click="handleShow(parentChannel.type,parentChannel.id)">
+                <div class="row channel-row" style="margin-right: 0px;margin-left: 0px;margin-top: 10px;" data-bs-toggle="collapse" :data-bs-target="`#collapse-${parentChannel.id}`" @click="handleShow(parentChannel.type,parentChannel.id);showChannelInfo(parentChannel)">
                     <div class="col-4" style="text-align: center;">
                         <span></span>
                     </div>
                     <div class="col" :id="parentChannel.id" style="text-align: left;padding-top: 11px;padding-bottom: 11px;">
-                        <span style="font-weight: bold;">{{parentChannel.name}}</span>
+                        <span style="font-weight: bold;" :style="{'color': checkPermission(guild, parentChannel) ? 'inherit' : 'red'}" >{{parentChannel.name}}</span>
                     </div>
                 </div>
-                <div v-if="parentChannel.type === 4" style="margin-top: 10px;" :id="`collapse-${parentChannel.id}`" class="collapse col-12">
-                     <div v-if="visibleChildChannels.includes(parentChannel.id)" v-for="childChannel of getChildChannels(parentChannel.id)" class="channel-row row" @click="showP(childChannel)">
+                <div v-if="parentChannel.type === 4" style="margin-top: 10px; " :id="`collapse-${parentChannel.id}`" class="collapse col-12"  
+                    v-on="{'hide.bs.collapse':hidwCollapse, 'show.bs.collapse':showCollapse}" >
+                     <div v-if="visibleChildChannels.includes(parentChannel.id)" v-for="childChannel of getChildChannels(parentChannel.id)" class="channel-row row" @click="showChannelInfo(childChannel)"  >
                         <div class="col-5" style="text-align: center;">
                             <span></span>
                         </div>
                         <div class="col" :id="childChannel.id" style="text-align: left;padding-top: 11px;padding-bottom: 11px;">
-                            <span :style="{'font-weight': 'bold', 'color': checkPermission(childChannel) ? 'inherit' : 'red'}">{{childChannel.name}}</span>
+                            <span :style="{'font-weight': 'bold', 'color': checkPermission(guild, childChannel) ? 'inherit' : 'red'}">{{childChannel.name}}</span>
                         </div>
                      </div>
                 </div>
@@ -28,28 +29,32 @@
 
 
 <script setup lang="ts">
-    import { type APIGuildMember, type Permissions } from 'discord-api-types/v10';
+    import { PermissionFlagsBits, type APIGuild, type APIGuildMember, type APIRole, type APIUser, type Permissions } from 'discord-api-types/v10';
     import type { DiscordChannel } from '@/api/guild/dto/read-channel';
-    import { getChannelsApi,getMemberByUserIdAndGuildIdApi } from '@/api/guild/guild';
-    import { ReadUserResponseDto } from '@/api/user/dto/read-user.dto';
+    import { getChannelsApi,getMemberByUserIdAndGuildIdApi, getRoleByGuildIdApi,getGuildMemberApi} from '@/api/guild/guild';
+    import { ReadGuildsResponseDto, ReadUserResponseDto } from '@/api/user/dto/read-user.dto';
     import type { ApiResponse } from '@/common.class';
     import { computed, ref, watch, type Ref } from 'vue';
     import { UserStore } from './User';
 
     const { user } = UserStore();
     const props = defineProps<{
-        guildId: string,
+        guild: ReadGuildsResponseDto,
     }>();
     const channels:Ref<DiscordChannel[]> = ref([]);
     const parentChannels:Ref<DiscordChannel[]> =ref([]);
     const visibleChildChannels: Ref<string[]> = ref([]);
-    const myRoles: Ref<string[]> = ref([]);
+    const userRoleIds: Ref<string[]> = ref([]);
+    const guildRoles: Ref<APIRole[]> = ref([]);
+    const userPermission: Ref<bigint> = ref(BigInt(0))
 
-
-    watch(() => props.guildId, async (newGuildId) => {
-        if (newGuildId) {
+    watch(() => props.guild, async (newGuild) => {
+        if (newGuild) {
             {
-                const response:ApiResponse<DiscordChannel> = await getChannelsApi(newGuildId);
+                await getGuildRoles(newGuild.id);
+            }
+            {
+                const response:ApiResponse<DiscordChannel> = await getChannelsApi(newGuild.id);
                 const symbol = (type: number)=> {
                     switch(type){
                         case 0:{
@@ -60,6 +65,9 @@
                         }
                         case 4:{
                             return '▶';
+                        }
+                        case 5:{
+                            return '📢';
                         }
                         default:{
                             return '';
@@ -73,21 +81,84 @@
                 getParentAndNotParentChannels();
             }
             {
-                const response:ApiResponse<APIGuildMember> = await getMemberByUserIdAndGuildIdApi(newGuildId, user.value.discordUserId!);
-                myRoles.value = (response.data as APIGuildMember).roles;
+                const response:ApiResponse<APIGuildMember> = await getMemberByUserIdAndGuildIdApi(newGuild.id, user.value.discordUserId!);
+                userRoleIds.value = (response.data as APIGuildMember).roles;
+            }
+            {
+                userPermission.value = calcUserRolesPermission(props.guild.id,guildRoles.value,userRoleIds.value);
             }
         }
     }, { immediate: true });
 
-    function showP(channel:DiscordChannel){ 
+
+
+    function showCollapse(event:Event){
+        const channelId = (event.target as HTMLElement).id.split('-')[1];
+        const channel = parentChannels.value.find((parentChannel)=>{
+            return parentChannel.id === channelId;
+        })
+        channel!.name = `▼${channel!.name.substring(1)}`;
+    }
+
+    function hidwCollapse(event:Event){
+        const channelId = (event.target as HTMLElement).id.split('-')[1];
+        const channel = parentChannels.value.find((parentChannel)=>{
+            return parentChannel.id === channelId;
+        })
+        channel!.name = `▶${channel!.name.substring(1)}`;
+    }
+
+
+    async function showChannelInfo(channel:DiscordChannel){ 
+        const everyonePermission = guildRoles.value.find((role)=>{
+            return role.id === props.guild.id;
+        })!.permissions;
         console.log('------------------------------------');
-        console.log(channel.name);
-        console.log(channel.permission_overwrites);
-        console.log('userId:'+ user.value.discordUserId);
-        console.log('myrole:');
-        console.log(myRoles.value);
+        console.log('name:'+ channel.name);
+        console.log('id:'+ channel.id);
+        console.log('roles:');
+        for(const permissionOverwrite of channel.permission_overwrites){
+            if(permissionOverwrite.type === 0){
+                let lastPermission = BigInt(everyonePermission);
+                const allow = BigInt(permissionOverwrite.allow);
+                const deny = BigInt(permissionOverwrite.deny);
+                lastPermission &= ~deny;
+                lastPermission |= allow;
+                const canViewChannel = ( lastPermission & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel;
+                if(canViewChannel){
+                    const role = guildRoles.value.find((guildRole)=>{
+                    return guildRole.id === permissionOverwrite.id
+                    });
+                    console.log(role?.name);
+                }
+            }
+        };
+        console.log('users:');
+        for(const permissionOverwrite of channel.permission_overwrites){
+            if(permissionOverwrite.type === 1){
+                let lastPermission = BigInt(everyonePermission);
+                const allow = BigInt(permissionOverwrite.allow);
+                const deny = BigInt(permissionOverwrite.deny);
+                lastPermission &= ~deny;
+                lastPermission |= allow;
+                const canViewChannel = ( lastPermission & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel;
+                if(canViewChannel){
+                    const result = await getGuildMemberApi(props.guild.id,permissionOverwrite.id);
+                    const data = result.data as APIGuildMember;
+                    if(data.nick){
+                        console.log(data.nick);
+                    }else if(data.user.username){
+                        console.log(data.user.username);
+                    }else{
+                        console.log(data.user.global_name);
+                    }
+
+                }
+            }
+        };
         console.log('------------------------------------');
     }
+
     function handleShow(type:number, channelId: string) {
         if (type === 4 && !visibleChildChannels.value.includes(channelId)) {
             visibleChildChannels.value.push(channelId);
@@ -111,60 +182,81 @@
                     return a.position - b.position;
                 });
     }
-    function checkPermission(channel:DiscordChannel):boolean{
-        if(channel.permission_overwrites.length === 0){
-            return true;
-        }
-        for(const permission_overwrite of channel.permission_overwrites){
-            if(permission_overwrite.type === 0 && hasPermissionToViewChannel(props.guildId,myRoles.value,channel.permission_overwrites)){
-                   return true;
-            }
-             if(permission_overwrite.type === 0 && myRoles.value.includes(permission_overwrite.id) && permission_overwrite.allow !== '0'
-             ||  permission_overwrite.type === 0 && myRoles.value.includes(permission_overwrite.id) && permission_overwrite.allow === '0' && permission_overwrite.deny === '0'){
-                 return true;
-             }
-            if(permission_overwrite.type === 1 && permission_overwrite.id === user.value.discordUserId && permission_overwrite.allow !== '0'
-            || permission_overwrite.type === 1 && permission_overwrite.id === user.value.discordUserId && permission_overwrite.allow === '0' && permission_overwrite.deny === '0'
-        ){       
-                    return true;
-            }
-        }
-        return false;
+    async function getGuildRoles(guildId:string){
+        const dcResponse = await getRoleByGuildIdApi(guildId) as ApiResponse<APIRole>;
+        guildRoles.value = dcResponse.data as APIRole[];
     }
 
-// 权限常量
-const VIEW_CHANNEL = BigInt(0x400); // VIEW_CHANNEL 权限的位标识符
+    interface PermissionOverwrite {
+        id: string;
+        type: number;
+        allow: string;
+        deny: string;
+    }
 
-// 权限覆盖项接口
-interface PermissionOverwrite {
-    id: string;
-    type: number;
-    allow: string;
-    deny: string;
-}
 
-// 通用权限计算函数
-function calculatePermissions(guildId: string, userRoles: string[], permissionOverwrites: PermissionOverwrite[]): bigint {
-    let allow = BigInt(0);
-    let deny = BigInt(0);
-
-    permissionOverwrites.forEach(overwrite => {
-        if (userRoles.includes(overwrite.id) || overwrite.id === guildId) {
-            allow |= BigInt(overwrite.allow);
-            deny |= BigInt(overwrite.deny);
+    function checkPermission( guild:ReadGuildsResponseDto, channel:DiscordChannel ):boolean{
+        if( guild.owner === true ){
+            return true;
         }
-    });
+        const everyonePermission = calcEveryonePermissionOverwrite(guild.id, userPermission.value, channel.permission_overwrites);
+        const lastPermission = calcPermissionOverwrite(user.value.discordUserId!, everyonePermission,userRoleIds.value, channel.permission_overwrites);
+        const canViewChannel = ( lastPermission & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel;
+        return canViewChannel;
+    }
 
-    // 计算最终权限
-    const finalPermissions = allow & ~deny;
-    return finalPermissions;
-}
+    function calcUserRolesPermission(guildId:string, guildRoles:APIRole[], userRoleIds:string[]):bigint {
+        const everyonePermission = guildRoles.find((role)=>{
+            return role.id === guildId;
+        })!.permissions;
+        let lastPermission = BigInt(everyonePermission);
+        const haveRoles:APIRole[] = [];
+        for(const roleId of userRoleIds){
+            const found = guildRoles.find((role)=>{
+                return role.id === roleId;
+            });
+            if(found){
+                haveRoles.push(found);
+            }
+        }
+        haveRoles.forEach((role)=>{
+            lastPermission |= BigInt(role.permissions);
+        })
+        return lastPermission;
+    }
 
-// 检查用户是否有权查看频道
-function hasPermissionToViewChannel(guildId: string, userRoles: string[], permissionOverwrites: PermissionOverwrite[]): boolean {
-    const finalPermissions = calculatePermissions(guildId, userRoles, permissionOverwrites);
-    return (finalPermissions & VIEW_CHANNEL) === VIEW_CHANNEL;
-}
+    function calcEveryonePermissionOverwrite(guildId:string, userPermission: bigint, permissionOverwrites:PermissionOverwrite[],):bigint {
+        let lastPermission = userPermission;
+        permissionOverwrites.forEach((permissionOverwrite)=>{
+            if( permissionOverwrite.id === guildId){
+                const allow = BigInt(permissionOverwrite.allow);
+                const deny = BigInt(permissionOverwrite.deny);
+                lastPermission &= ~deny;
+                lastPermission |= allow;
+            }
+        })
+        return lastPermission;
+    }
+
+    function calcPermissionOverwrite(userId:string, userPermission: bigint, userRoleIds:string[], permissionOverwrites:PermissionOverwrite[],):bigint {
+        let lastPermission = userPermission;
+        permissionOverwrites.forEach((permissionOverwrite)=>{
+            if( permissionOverwrite.type === 0 && userRoleIds.includes(permissionOverwrite.id)){
+                const allow = BigInt(permissionOverwrite.allow);
+                const deny = BigInt(permissionOverwrite.deny);
+                lastPermission &= ~deny;
+                lastPermission |= allow;
+            }else if( permissionOverwrite.type === 1 && permissionOverwrite.id === userId){
+                const allow = BigInt(permissionOverwrite.allow);
+                const deny = BigInt(permissionOverwrite.deny);
+                lastPermission &= ~deny;
+                lastPermission |= allow;
+            }
+        })
+        return lastPermission;
+    }
+
+
 </script>
 
 <style>
