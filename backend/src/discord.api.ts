@@ -7,7 +7,7 @@ const host = 'https://discord.com/api';
 const version = 'v10';
 
 export const DiscordApi = {
-  async getUser(token: string): Promise<ApiResponse<APIUser>> {
+  async getMe(token: string): Promise<ApiResponse<APIUser>> {
     const response = new ApiResponse<APIUser>();
     try {
       const dcResponse = await axios.get(`${host}/${version}/users/@me`, {
@@ -17,6 +17,28 @@ export const DiscordApi = {
       });
       if (dcResponse.status === HttpStatus.OK) {
         response.data = dcResponse.data as APIUser;
+        response.message = '讀取成功';
+        response.success = true;
+        response.statusCode = HttpStatus.OK;
+        return response;
+      }
+    } catch {}
+    response.message = '驗證失敗';
+    response.success = false;
+    response.statusCode = HttpStatus.UNAUTHORIZED;
+    return response;
+  },
+
+  async getMember(token: string, guildId: string, userId: string): Promise<ApiResponse<APIGuildMember>> {
+    const response = new ApiResponse<APIGuildMember>();
+    try {
+      const dcResponse = await axios.get(`${host}/${version}/guilds/${guildId}/members/${userId}`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      if (dcResponse.status === HttpStatus.OK) {
+        response.data = dcResponse.data as APIGuildMember;
         response.message = '讀取成功';
         response.success = true;
         response.statusCode = HttpStatus.OK;

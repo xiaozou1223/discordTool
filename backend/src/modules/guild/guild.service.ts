@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { APIGuildChannel, APIGuildMember, APIRole } from 'discord-api-types/v10';
+import { APIGuildChannel, APIGuildMember, APIRole, APIUser } from 'discord-api-types/v10';
 import { DiscordApi } from 'src/discord.api';
 import { DiscordChannel } from './dto/read-channel';
 import { ApiResponse } from 'src/common.class';
@@ -42,5 +42,12 @@ export class GuildService {
     respone.data = data;
     respone.set(resultMessage);
     return respone;
+  }
+
+  async getMember(token: string, guildId: string, discordUserId: string) {
+    const response = new ApiResponse<APIGuildMember>();
+    const discordResult = await DiscordApi.getMember(token, guildId, discordUserId);
+    response.set(discordResult);
+    return response;
   }
 }
