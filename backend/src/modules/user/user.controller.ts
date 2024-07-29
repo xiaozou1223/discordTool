@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -29,7 +29,6 @@ export class UserController {
 
   @Patch(':account')
   async update(@Param('account') account: string, @Body() updateUserDto: UpdateUserDto, @Res() res: Response) {
-    console.log(account);
     const result: ApiResponse<ReadUserResponseDto> = await this.userService.update(account, updateUserDto, res);
     const jwtResult = await this.authService.login(result.data as ReadUserResponseDto);
     res.cookie('jwt', jwtResult.accessToken, { httpOnly: false, path: '/', secure: false });
