@@ -99,7 +99,7 @@ export class UserService {
       currentData.passwordHash = await bcrypt.hash(updateUserDto.password, SALT_ROUNDS);
     }
     if (updateUserDto.discordToken !== undefined) {
-      const discordResult = await DiscordApi.getUser(updateUserDto.discordToken);
+      const discordResult = await DiscordApi.getMe(updateUserDto.discordToken);
       if (discordResult.success) {
         const discordUserId = (discordResult.data as APIUser).id;
         const sameDiscordUserIdUser = await this.userRepository.findOneBy({ discordUserId });
@@ -147,7 +147,7 @@ export class UserService {
     }
     const discordResult = await DiscordApi.getGuilds(token);
     const guildsData: ReadGuildsDataResponseDto[] = (discordResult.data as APIGuild[]).map((item) => {
-      return { id: item.id, icon: item.icon, name: item.name };
+      return { id: item.id, icon: item.icon, name: item.name, owner: item.owner };
     });
     response.set({ data: guildsData });
     response.set(RESPONSE_MESSAGES.ACCOUNT_FOUND);
@@ -174,6 +174,7 @@ export class UserService {
     const data = await this.userRepository.findOne({ where: { account }, select: ['passwordHash'] });
     return data.passwordHash;
   }
+
 }
 
 function encrypt(text: string): string {
