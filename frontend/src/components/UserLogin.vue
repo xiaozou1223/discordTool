@@ -43,7 +43,7 @@ async function login() {
   }
   await loginAPI(account.value, password.value)
     .then(() => {
-      router.push({ name: 'User' })
+      router.push({ name: 'DiscordServer' })
     })
     .catch((res: any) => {
       const result: ApiResponse<ReadUserResponseDto> = res

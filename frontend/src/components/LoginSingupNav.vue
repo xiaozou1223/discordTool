@@ -15,7 +15,7 @@ import router from '@/router'
 import Cookies from 'js-cookie'
 const token = Cookies.get('jwt')
 if (token) {
-  router.push({ name: 'User' })
+  router.push({ name: 'DiscordServer' })
 }
 </script>
 

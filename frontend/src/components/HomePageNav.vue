@@ -31,7 +31,7 @@
                 role="button"
                 style="font-size: 22px; color: rgb(255, 255, 255); font-weight: bold"
                 @click="router.push({ name: 'User' })"
-                >監聽中</a
+                >已監聽頻道</a
               >
             </div>
             <div class="col-md-3">
@@ -75,12 +75,6 @@ function logout() {
 </script>
 
 <style>
-span {
-  user-select: none; /* For modern browsers */
-  -webkit-user-select: none; /* For Safari */
-  -moz-user-select: none; /* For Firefox */
-  -ms-user-select: none; /* For Internet Explorer/Edge */
-}
 span {
   user-select: none; /* For modern browsers */
   -webkit-user-select: none; /* For Safari */
