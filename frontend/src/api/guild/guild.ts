@@ -1,6 +1,6 @@
 import apiClient from '../index';
 import { ApiResponse } from '../../common.class';
-import type { AxiosError, AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios'
 import type { APIGuildMember } from 'discord-api-types/v10';
 
 export async function getChannelsApi(guildId: string) {
