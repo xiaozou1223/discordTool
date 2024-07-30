@@ -7,7 +7,7 @@
   
   <script setup lang="ts">
   import { RouterView } from 'vue-router';
-  import Footer from './components/Footer.vue';
+  import Footer from './components/FooterComponent.vue';
   </script>
   
   <style scoped>
