@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len -->
 <template>
   <div>
     <h3 v-if="channels.length === 0">載入中...</h3>
@@ -5,9 +6,9 @@
       <div
         class="row channel-row"
         style="margin-right: 0px; margin-left: 0px; margin-top: 10px"
-        data-bs-toggle="collapse"
-        :data-bs-target="`#collapse-${parentChannel.id}`"
-        @click="handleShow(parentChannel.type,parentChannel.id);showChannelInfo(parentChannel)"
+        :data-bs-toggle="parentChannel.type === 4 ? 'collapse' : null"
+        :data-bs-target="parentChannel.type === 4 ? `#collapse-${parentChannel.id}` : null"
+        @click="parentChannel.type === 4 ? handleShow(parentChannel.type, parentChannel.id) : openModal(parentChannel,checkPermission(guild, parentChannel))"
       >
         <div class="col-4" style="text-align: center">
           <span></span>
@@ -29,7 +30,7 @@
           <div
             v-for="childChannel of getChildChannels(parentChannel.id)"
             class="channel-row row"
-            @click="showChannelInfo(childChannel)"
+            @click="childChannel.type !== 4 ? openModal(childChannel,checkPermission(guild, childChannel)) : null"
             :key="childChannel.id"
           >
             <div class="col-5" style="text-align: center">
@@ -43,16 +44,18 @@
       </div>
     </div>
   </div>
+  <Modal ref="modalRef" :guild="guild" :guildRoles="guildRoles" :channels="channels"/>
 </template>
 
 <script setup lang="ts">
 import { PermissionFlagsBits, type APIGuildMember, type APIRole } from 'discord-api-types/v10'
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
-import { getChannelsApi, getMemberByUserIdAndGuildIdApi, getRoleByGuildIdApi, getGuildMemberApi } from '@/api/guild/guild'
+import { getChannelsApi, getMemberByUserIdAndGuildIdApi, getRoleByGuildIdApi } from '@/api/guild/guild'
 import { ReadGuildsResponseDto } from '@/api/user/dto/read-user.dto'
 import type { ApiResponse } from '@/common.class'
 import { ref, watch, type Ref } from 'vue'
 import { UserStore } from './User'
+import Modal from './ChannelModal.vue'
 
 const { user } = UserStore()
 const props = defineProps<{
@@ -64,6 +67,8 @@ const visibleChildChannels: Ref<string[]> = ref([])
 const userRoleIds: Ref<string[]> = ref([])
 const guildRoles: Ref<APIRole[]> = ref([])
 const userPermission: Ref<bigint> = ref(BigInt(0))
+const modalRef = ref<InstanceType<typeof Modal> | null>(null)
+
 
 watch(
   () => props.guild,
@@ -111,6 +116,12 @@ watch(
   { immediate: true }
 )
 
+function openModal(channel: DiscordChannel, haveViewPermission: boolean) {
+  if (modalRef.value) {
+    modalRef.value.openModal(channel, haveViewPermission)
+  }
+}
+
 function showCollapse(event: Event) {
   const channelId = (event.target as HTMLElement).id.split('-')[1]
   const channel = parentChannels.value.find((parentChannel) => {
@@ -125,55 +136,6 @@ function hidwCollapse(event: Event) {
     return parentChannel.id === channelId
   })
   channel!.name = `▶${channel!.name.substring(1)}`
-}
-
-async function showChannelInfo(channel: DiscordChannel) {
-  const everyonePermission = guildRoles.value.find((role) => {
-    return role.id === props.guild.id
-  })!.permissions
-  console.log('------------------------------------')
-  console.log('name:' + channel.name)
-  console.log('id:' + channel.id)
-  console.log('roles:')
-  for (const permissionOverwrite of channel.permission_overwrites) {
-    if (permissionOverwrite.type === 0) {
-      let lastPermission = BigInt(everyonePermission)
-      const allow = BigInt(permissionOverwrite.allow)
-      const deny = BigInt(permissionOverwrite.deny)
-      lastPermission &= ~deny
-      lastPermission |= allow
-      const canViewChannel = (lastPermission & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel
-      if (canViewChannel) {
-        const role = guildRoles.value.find((guildRole) => {
-          return guildRole.id === permissionOverwrite.id
-        })
-        console.log(role?.name)
-      }
-    }
-  }
-  console.log('users:')
-  for (const permissionOverwrite of channel.permission_overwrites) {
-    if (permissionOverwrite.type === 1) {
-      let lastPermission = BigInt(everyonePermission)
-      const allow = BigInt(permissionOverwrite.allow)
-      const deny = BigInt(permissionOverwrite.deny)
-      lastPermission &= ~deny
-      lastPermission |= allow
-      const canViewChannel = (lastPermission & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel
-      if (canViewChannel) {
-        const result = await getGuildMemberApi(props.guild.id, permissionOverwrite.id)
-        const data = result.data as APIGuildMember
-        if (data.nick) {
-          console.log(data.nick)
-        } else if (data.user.username) {
-          console.log(data.user.username)
-        } else {
-          console.log(data.user.global_name)
-        }
-      }
-    }
-  }
-  console.log('------------------------------------')
 }
 
 function handleShow(type: number, channelId: string) {

@@ -81,6 +81,7 @@ function handleShow(guildId: string) {
 .guild-row:active {
   background-color: rgba(255, 255, 255, 0.2);
 }
+
 span {
   user-select: none; /* For modern browsers */
   -webkit-user-select: none; /* For Safari */
