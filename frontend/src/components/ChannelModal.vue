@@ -64,6 +64,7 @@ async function openModal(inputChannel: DiscordChannel, ViewPermission: boolean) 
   channel.value = inputChannel
   showModal.value = true
   haveViewPermission.value = ViewPermission
+  page.value = Page.info;
   await parsePermission(channel.value)
 }
 
