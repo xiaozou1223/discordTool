@@ -11,7 +11,7 @@
               <div class="mb-3">
                 <input class="form-control" type="account" name="account" @input="validateAccount" v-model="account" placeholder="帳號" />
               </div>
-              <div class="mb-3"><input class="form-control" name="password" v-model="password" placeholder="密碼" /></div>
+              <div class="mb-3"><input class="form-control" type="password" name="password" v-model="password" placeholder="密碼" /></div>
               <div class="mb-3"><button class="btn btn-primary shadow d-block w-100" @click="login">登入</button></div>
               <RouterLink to="signup">註冊</RouterLink>
               <p class="text-muted">忘記密碼</p>
