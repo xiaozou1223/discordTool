@@ -8,7 +8,11 @@
         style="margin-right: 0px; margin-left: 0px; margin-top: 10px"
         :data-bs-toggle="parentChannel.type === 4 ? 'collapse' : null"
         :data-bs-target="parentChannel.type === 4 ? `#collapse-${parentChannel.id}` : null"
-        @click="parentChannel.type === 4 ? handleShow(parentChannel.type, parentChannel.id) : openModal(parentChannel,checkPermission(guild, parentChannel))"
+        @click="
+          parentChannel.type === 4
+            ? handleShow(parentChannel.type, parentChannel.id)
+            : openModal(parentChannel, checkPermission(guild, parentChannel))
+        "
       >
         <div class="col-4" style="text-align: center">
           <span></span>
@@ -30,7 +34,7 @@
           <div
             v-for="childChannel of getChildChannels(parentChannel.id)"
             class="channel-row row"
-            @click="childChannel.type !== 4 ? openModal(childChannel,checkPermission(guild, childChannel)) : null"
+            @click="childChannel.type !== 4 ? openModal(childChannel, checkPermission(guild, childChannel)) : null"
             :key="childChannel.id"
           >
             <div class="col-5" style="text-align: center">
@@ -44,7 +48,7 @@
       </div>
     </div>
   </div>
-  <Modal ref="modalRef" :guild="guild" :guildRoles="guildRoles" :channels="channels"/>
+  <Modal ref="modalRef" :guild="guild" :guildRoles="guildRoles" :channels="channels" />
 </template>
 
 <script setup lang="ts">
@@ -68,7 +72,6 @@ const userRoleIds: Ref<string[]> = ref([])
 const guildRoles: Ref<APIRole[]> = ref([])
 const userPermission: Ref<bigint> = ref(BigInt(0))
 const modalRef = ref<InstanceType<typeof Modal> | null>(null)
-
 
 watch(
   () => props.guild,
@@ -113,7 +116,7 @@ watch(
       }
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 function openModal(channel: DiscordChannel, haveViewPermission: boolean) {
@@ -179,9 +182,10 @@ function checkPermission(guild: ReadGuildsResponseDto, channel: DiscordChannel):
   if (guild.owner === true) {
     return true
   }
-  const everyonePermission = calcEveryonePermissionOverwrite(guild.id, userPermission.value, channel.permission_overwrites)
-  const lastPermission = calcPermissionOverwrite(user.value.discordUserId!, everyonePermission, userRoleIds.value, channel.permission_overwrites)
-  const canViewChannel = (lastPermission & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel
+  const everyonePermissionOverwrite = calcEveryonePermissionOverwrite(guild.id, userPermission.value, channel.permission_overwrites)
+  const rolesPermissionOverwrite = calcRolesPermissionOverwrite(everyonePermissionOverwrite, userRoleIds.value, channel.permission_overwrites)
+  const userPermissionOverwrite = calcUserPermissionOverwrite(user.value.discordUserId!, rolesPermissionOverwrite, channel.permission_overwrites)
+  const canViewChannel = (userPermissionOverwrite & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel
   return canViewChannel
 }
 
@@ -218,19 +222,28 @@ function calcEveryonePermissionOverwrite(guildId: string, userPermission: bigint
   return lastPermission
 }
 
-function calcPermissionOverwrite(userId: string, userPermission: bigint, userRoleIds: string[], permissionOverwrites: PermissionOverwrite[]): bigint {
-  let lastPermission = userPermission
+function calcRolesPermissionOverwrite(currentPermission: bigint, userRoleIds: string[], permissionOverwrites: PermissionOverwrite[]): bigint {
+  let lastPermission = currentPermission
   permissionOverwrites.forEach((permissionOverwrite) => {
     if (permissionOverwrite.type === 0 && userRoleIds.includes(permissionOverwrite.id)) {
       const allow = BigInt(permissionOverwrite.allow)
       const deny = BigInt(permissionOverwrite.deny)
       lastPermission &= ~deny
       lastPermission |= allow
-    } else if (permissionOverwrite.type === 1 && permissionOverwrite.id === userId) {
+    }
+  })
+  return lastPermission
+}
+
+function calcUserPermissionOverwrite(userId: string, userPermission: bigint, permissionOverwrites: PermissionOverwrite[]): bigint {
+  let lastPermission = userPermission
+  permissionOverwrites.forEach((permissionOverwrite) => {
+    if (permissionOverwrite.type === 1 && permissionOverwrite.id === userId) {
       const allow = BigInt(permissionOverwrite.allow)
       const deny = BigInt(permissionOverwrite.deny)
       lastPermission &= ~deny
       lastPermission |= allow
+      return lastPermission
     }
   })
   return lastPermission
