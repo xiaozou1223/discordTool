@@ -57,7 +57,7 @@ import type { DiscordChannel } from '@/api/guild/dto/read-channel'
 import { getChannelsApi, getMemberByUserIdAndGuildIdApi, getRoleByGuildIdApi } from '@/api/guild/guild'
 import { ReadGuildsResponseDto } from '@/api/user/dto/read-user.dto'
 import type { ApiResponse } from '@/common.class'
-import { ref, watch, type Ref } from 'vue'
+import { ref, toRaw, watch, type Ref } from 'vue'
 import { UserStore } from './User'
 import Modal from './ChannelModal.vue'
 
@@ -123,6 +123,16 @@ function openModal(channel: DiscordChannel, haveViewPermission: boolean) {
   if (modalRef.value) {
     modalRef.value.openModal(channel, haveViewPermission)
   }
+  console.log('------------------------------------')
+  console.log(`使用者ID : ${user.value.discordUserId}`)
+  console.log(`伺服器ID : ${props.guild.id}`)
+  console.log(`頻道ID : ${channel.id}`)
+  console.log(`使用者持有身分組 : `)
+  console.log(toRaw(guildRoles.value).filter((role)=>{return userRoleIds.value.includes(role.id) || role.id === props.guild.id}))
+  console.log(`頻道權限覆蓋設定 : `)
+  console.log(toRaw(channel.permission_overwrites))
+  console.log(`是否有無權限查看 : ${haveViewPermission}`)
+  console.log('------------------------------------')
 }
 
 function showCollapse(event: Event) {
