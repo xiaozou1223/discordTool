@@ -12,19 +12,40 @@
         <div class="modal-header">
           <ul class="nav">
             <li class="nav-item">
-              <a @click="switchPage(Page.info)" class="nav-link" style="font-weight: bold;font-size: 18px; color: white">詳細資訊</a>
+              <a @click="switchPage(Page.info)" class="nav-link" style="font-weight: bold; font-size: 18px; color: white">詳細資訊</a>
             </li>
             <li class="nav-item">
-              <a v-if="channel.type === 0 && haveViewPermission" @click="switchPage(Page.script)" class="nav-link" style="font-weight: bold; font-size: 18px; color: white">批量刪除</a>
+              <a
+                v-if="channel.type === 0 && haveViewPermission"
+                @click="switchPage(Page.script)"
+                class="nav-link"
+                style="font-weight: bold; font-size: 18px; color: white"
+                >批量刪除</a
+              >
             </li>
             <li class="nav-item">
-              <a v-if="channel.type === 0 && haveViewPermission" @click="switchPage(Page.listening)" class="nav-link" style="font-weight: bold; font-size: 18px; color: white">監聽</a>
+              <a
+                v-if="channel.type === 0 && haveViewPermission"
+                @click="switchPage(Page.listening)"
+                class="nav-link"
+                style="font-weight: bold; font-size: 18px; color: white"
+                >監聽</a
+              >
             </li>
           </ul>
           <button class="btn-close btn-close-white" type="button" aria-label="Close" @click="showModal = false"></button>
         </div>
         <div class="modal-body">
-          <ChannelInfo v-if="page === Page.info" :guild="guild" :users="users" :roles="roles" :have-view-permission="haveViewPermission" :channel="channel"/>
+          <ChannelInfo
+            v-if="page === Page.info"
+            :guild="guild"
+            :allowUsers="allowUsers"
+            :allowRoles="allowRoles"
+            :have-view-permission="haveViewPermission"
+            :channel="channel"
+            :deny-roles="denyRoles"
+            :deny-users="denyUsers"
+          />
           <h3 v-if="page === Page.listening">測試 監聽</h3>
           <h3 v-if="page === Page.script">測試 批量刪除˙</h3>
         </div>
@@ -50,8 +71,10 @@ enum Page {
 const showModal: Ref<boolean> = ref(false)
 const channel: Ref<DiscordChannel> = ref(new DiscordChannel())
 const page: Ref<Page> = ref(Page.info)
-const users: Ref<APIGuildMember[]> = ref([])
-const roles: Ref<APIRole[]> = ref([])
+const allowUsers: Ref<APIGuildMember[]> = ref([])
+const allowRoles: Ref<APIRole[]> = ref([])
+const denyUsers: Ref<APIGuildMember[]> = ref([])
+const denyRoles: Ref<APIRole[]> = ref([])
 const haveViewPermission: Ref<boolean> = ref(false)
 
 const props = defineProps<{
@@ -64,7 +87,7 @@ async function openModal(inputChannel: DiscordChannel, ViewPermission: boolean) 
   channel.value = inputChannel
   showModal.value = true
   haveViewPermission.value = ViewPermission
-  page.value = Page.info;
+  page.value = Page.info
   await parsePermission(channel.value)
 }
 
@@ -73,24 +96,30 @@ defineExpose({
 })
 
 async function parsePermission(channel: DiscordChannel) {
-  roles.value = [];
-  users.value = [];
+  allowRoles.value = []
+  allowUsers.value = []
+  denyRoles.value = []
+  denyUsers.value = []
   const everyonePermission = props.guildRoles.find((role) => {
     return role.id === props.guild.id
   })!.permissions
   for (const permissionOverwrite of channel.permission_overwrites) {
     if (permissionOverwrite.type === 0) {
-      let lastPermission = BigInt(everyonePermission)
+      const role = props.guildRoles.find((guildRole) => {
+        return guildRole.id === permissionOverwrite.id
+      })
+      const rolePermission = BigInt(everyonePermission) | BigInt(role!.permissions)
+      let lastPermission = BigInt(rolePermission)
       const allow = BigInt(permissionOverwrite.allow)
       const deny = BigInt(permissionOverwrite.deny)
       lastPermission &= ~deny
       lastPermission |= allow
       const canViewChannel = (lastPermission & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel
+
       if (canViewChannel) {
-        const role = props.guildRoles.find((guildRole) => {
-          return guildRole.id === permissionOverwrite.id
-        })
-        roles.value.push(role!)
+        allowRoles.value.push(role!)
+      }else{
+        denyRoles.value.push(role!);
       }
     }
   }
@@ -102,10 +131,12 @@ async function parsePermission(channel: DiscordChannel) {
       lastPermission &= ~deny
       lastPermission |= allow
       const canViewChannel = (lastPermission & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel
+      const result = await getGuildMemberApi(props.guild.id, permissionOverwrite.id)
+      const user = result.data as APIGuildMember
       if (canViewChannel) {
-        const result = await getGuildMemberApi(props.guild.id, permissionOverwrite.id)
-        const user = result.data as APIGuildMember
-        users.value.push(user)
+        allowUsers.value.push(user)
+      }else{
+        denyUsers.value.push(user)
       }
     }
   }
