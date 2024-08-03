@@ -133,7 +133,7 @@ function openModal(channel: DiscordChannel, haveViewPermission: boolean) {
   console.log(toRaw(guildRoles.value).filter((role)=>{return userRoleIds.value.includes(role.id) || role.id === props.guild.id}))
   console.log(`頻道權限覆蓋設定 : `)
   console.log(toRaw(channel.permission_overwrites))
-  console.log(`是否有無權限查看 : ${haveViewPermission}`)
+  console.log(`有無權限查看 : ${haveViewPermission}`)
   console.log('------------------------------------')
 }
 
