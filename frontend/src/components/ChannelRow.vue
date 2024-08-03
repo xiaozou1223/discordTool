@@ -130,7 +130,11 @@ function openModal(channel: DiscordChannel, haveViewPermission: boolean) {
   console.log(`頻道名稱 : ${channel.name}`)
   console.log(`頻道ID : ${channel.id}`)
   console.log(`使用者持有身分組 : `)
-  console.log(toRaw(guildRoles.value).filter((role)=>{return userRoleIds.value.includes(role.id) || role.id === props.guild.id}))
+  console.log(
+    toRaw(guildRoles.value).filter((role) => {
+      return userRoleIds.value.includes(role.id) || role.id === props.guild.id
+    }),
+  )
   console.log(`頻道權限覆蓋設定 : `)
   console.log(toRaw(channel.permission_overwrites))
   console.log(`有無權限查看 : ${haveViewPermission}`)
@@ -236,14 +240,21 @@ function calcEveryonePermissionOverwrite(guildId: string, userPermission: bigint
 
 function calcRolesPermissionOverwrite(currentPermission: bigint, userRoleIds: string[], permissionOverwrites: PermissionOverwrite[]): bigint {
   let lastPermission = currentPermission
+  let isAllowViewChannel = false
   permissionOverwrites.forEach((permissionOverwrite) => {
     if (permissionOverwrite.type === 0 && userRoleIds.includes(permissionOverwrite.id)) {
       const allow = BigInt(permissionOverwrite.allow)
       const deny = BigInt(permissionOverwrite.deny)
+      if ((allow & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel) {
+        isAllowViewChannel = true
+      }
       lastPermission &= ~deny
       lastPermission |= allow
     }
   })
+  if (isAllowViewChannel) {
+    lastPermission |= PermissionFlagsBits.ViewChannel
+  }
   return lastPermission
 }
 
