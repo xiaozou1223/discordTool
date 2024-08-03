@@ -125,7 +125,9 @@ function openModal(channel: DiscordChannel, haveViewPermission: boolean) {
   }
   console.log('------------------------------------')
   console.log(`使用者ID : ${user.value.discordUserId}`)
+  console.log(`伺服器名稱 : ${props.guild.name}`)
   console.log(`伺服器ID : ${props.guild.id}`)
+  console.log(`頻道名稱 : ${channel.name}`)
   console.log(`頻道ID : ${channel.id}`)
   console.log(`使用者持有身分組 : `)
   console.log(toRaw(guildRoles.value).filter((role)=>{return userRoleIds.value.includes(role.id) || role.id === props.guild.id}))
