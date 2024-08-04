@@ -240,35 +240,34 @@ function calcEveryonePermissionOverwrite(guildId: string, userPermission: bigint
 
 function calcRolesPermissionOverwrite(currentPermission: bigint, userRoleIds: string[], permissionOverwrites: PermissionOverwrite[]): bigint {
   let lastPermission = currentPermission
-  let isAllowViewChannel = false
+  const allows: string[] = []
+  const denys: string[] = []
   permissionOverwrites.forEach((permissionOverwrite) => {
     if (permissionOverwrite.type === 0 && userRoleIds.includes(permissionOverwrite.id)) {
-      const allow = BigInt(permissionOverwrite.allow)
-      const deny = BigInt(permissionOverwrite.deny)
-      if ((allow & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel) {
-        isAllowViewChannel = true
-      }
-      lastPermission &= ~deny
-      lastPermission |= allow
+      allows.push(permissionOverwrite.allow)
+      denys.push(permissionOverwrite.deny)
     }
   })
-  if (isAllowViewChannel) {
-    lastPermission |= PermissionFlagsBits.ViewChannel
-  }
+  denys.forEach((deny) => {
+    lastPermission &= ~BigInt(deny)
+  })
+  allows.forEach((allow) => {
+    lastPermission |= BigInt(allow)
+  })
   return lastPermission
 }
 
 function calcUserPermissionOverwrite(userId: string, userPermission: bigint, permissionOverwrites: PermissionOverwrite[]): bigint {
   let lastPermission = userPermission
-  permissionOverwrites.forEach((permissionOverwrite) => {
-    if (permissionOverwrite.type === 1 && permissionOverwrite.id === userId) {
-      const allow = BigInt(permissionOverwrite.allow)
-      const deny = BigInt(permissionOverwrite.deny)
-      lastPermission &= ~deny
-      lastPermission |= allow
-      return lastPermission
-    }
+  const userPermissionOverwrite = permissionOverwrites.find((permissionOverwrite) => {
+    return permissionOverwrite.type === 1 && permissionOverwrite.id === userId
   })
+  if (userPermissionOverwrite) {
+    const allow = BigInt(userPermissionOverwrite.allow)
+    const deny = BigInt(userPermissionOverwrite.deny)
+    lastPermission &= ~deny
+    lastPermission |= allow
+  }
   return lastPermission
 }
 </script>
