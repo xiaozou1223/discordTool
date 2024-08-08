@@ -48,7 +48,7 @@
       </div>
     </div>
   </div>
-  <Modal ref="modalRef" :guild="guild" :guildRoles="guildRoles" :channels="channels" />
+  <ChannelActionsModal ref="modalRef" :guild="guild" :guildRoles="guildRoles" :channels="channels" />
 </template>
 
 <script setup lang="ts">
@@ -59,7 +59,7 @@ import { ReadGuildsResponseDto } from '@/api/user/dto/read-user.dto'
 import type { ApiResponse } from '@/common.class'
 import { ref, toRaw, watch, type Ref } from 'vue'
 import { UserStore } from './User'
-import Modal from './ChannelModal.vue'
+import ChannelActionsModal from './ChannelInfoModal/ChannelActionsModal.vue'
 
 const { user } = UserStore()
 const props = defineProps<{
@@ -71,7 +71,7 @@ const visibleChildChannels: Ref<string[]> = ref([])
 const userRoleIds: Ref<string[]> = ref([])
 const guildRoles: Ref<APIRole[]> = ref([])
 const userPermission: Ref<bigint> = ref(BigInt(0))
-const modalRef = ref<InstanceType<typeof Modal> | null>(null)
+const modalRef = ref<InstanceType<typeof ChannelActionsModal> | null>(null)
 
 watch(
   () => props.guild,

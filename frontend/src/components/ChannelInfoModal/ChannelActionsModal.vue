@@ -46,8 +46,10 @@
             :deny-roles="denyRoles"
             :deny-users="denyUsers"
           />
-          <h3 v-if="page === Page.listening">測試 監聽</h3>
-          <h3 v-if="page === Page.script">測試 批量刪除˙</h3>
+          <h3 v-if="page === Page.listening"><MessageWatcher /></h3>
+          <h3 v-if="page === Page.script">
+            <MessagesMassDeleter />
+          </h3>
         </div>
       </div>
     </div>
@@ -61,7 +63,8 @@ import type { ReadGuildsResponseDto } from '@/api/user/dto/read-user.dto'
 import { PermissionFlagsBits, type APIGuildMember, type APIRole } from 'discord-api-types/v10'
 import { ref, defineExpose, type Ref } from 'vue'
 import ChannelInfo from './ChannelInfo.vue'
-
+import MessagesMassDeleter from './MessagesMassDeleter.vue'
+import MessageWatcher from './MessageWatcher.vue'
 enum Page {
   info,
   script,
@@ -118,8 +121,8 @@ async function parsePermission(channel: DiscordChannel) {
 
       if (canViewChannel) {
         allowRoles.value.push(role!)
-      }else{
-        denyRoles.value.push(role!);
+      } else {
+        denyRoles.value.push(role!)
       }
     }
   }
@@ -135,7 +138,7 @@ async function parsePermission(channel: DiscordChannel) {
       const user = result.data as APIGuildMember
       if (canViewChannel) {
         allowUsers.value.push(user)
-      }else{
+      } else {
         denyUsers.value.push(user)
       }
     }
