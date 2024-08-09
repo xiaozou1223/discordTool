@@ -21,7 +21,7 @@
     </div>
     <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
       <div class="col" style="text-align: center; ">
-        <span class="selectable-text" style="font-weight: bold; font-size: 18px" :style="{ color: haveViewPermission ? '#00EC00' : '#FF2D2D' }">{{ channel.name }}</span>
+        <span class="selectable-text" style="font-weight: bold; font-size: 18px" :style="{ color: hasViewPermission ? '#00EC00' : '#FF2D2D' }">{{ channel.name }}</span>
       </div>
     </div>
     <hr />
@@ -90,7 +90,7 @@ const props = defineProps<{
   allowRoles: APIRole[]
   denyUsers: APIGuildMember[]
   denyRoles: APIRole[]
-  haveViewPermission: boolean
+  hasViewPermission: boolean
 }>()
 </script>
 <style>

@@ -17,14 +17,14 @@ export class Pagination {
   currentPage: number;
   pageSize: number;
   total: number;
-  havePrevious: boolean;
-  haveNext: boolean;
+  hasPrevious: boolean;
+  hasNext: boolean;
 
-  constructor(currentPage: number, pageSize: number, total: number, havePrevious: boolean, haveNext: boolean) {
+  constructor(currentPage: number, pageSize: number, total: number, hasPrevious: boolean, hasNext: boolean) {
     this.currentPage = currentPage;
     this.pageSize = pageSize;
     this.total = total;
-    this.havePrevious = havePrevious;
-    this.haveNext = haveNext;
+    this.hasPrevious = hasPrevious;
+    this.hasNext = hasNext;
   }
 }

@@ -119,9 +119,9 @@ watch(
   { immediate: true },
 )
 
-function openModal(channel: DiscordChannel, haveViewPermission: boolean) {
+function openModal(channel: DiscordChannel, hasViewPermission: boolean) {
   if (modalRef.value) {
-    modalRef.value.openModal(channel, haveViewPermission)
+    modalRef.value.openModal(channel, hasViewPermission)
   }
   console.log('------------------------------------')
   console.log(`使用者ID : ${user.value.discordUserId}`)
@@ -137,7 +137,7 @@ function openModal(channel: DiscordChannel, haveViewPermission: boolean) {
   )
   console.log(`頻道權限覆蓋設定 : `)
   console.log(toRaw(channel.permission_overwrites))
-  console.log(`有無權限查看 : ${haveViewPermission}`)
+  console.log(`有無權限查看 : ${hasViewPermission}`)
   console.log('------------------------------------')
 }
 
@@ -210,16 +210,16 @@ function calcUserRolesPermission(guildId: string, guildRoles: APIRole[], userRol
     return role.id === guildId
   })!.permissions
   let lastPermission = BigInt(everyonePermission)
-  const haveRoles: APIRole[] = []
+  const hasRoles: APIRole[] = []
   for (const roleId of userRoleIds) {
     const found = guildRoles.find((role) => {
       return role.id === roleId
     })
     if (found) {
-      haveRoles.push(found)
+      hasRoles.push(found)
     }
   }
-  haveRoles.forEach((role) => {
+  hasRoles.forEach((role) => {
     lastPermission |= BigInt(role.permissions)
   })
   return lastPermission

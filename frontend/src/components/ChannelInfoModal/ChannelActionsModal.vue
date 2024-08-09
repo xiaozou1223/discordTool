@@ -16,7 +16,7 @@
             </li>
             <li class="nav-item">
               <a
-                v-if="channel.type === 0 && haveViewPermission"
+                v-if="channel.type === 0 && hasViewPermission"
                 @click="switchPage(Page.script)"
                 class="nav-link"
                 style="font-weight: bold; font-size: 18px; color: white"
@@ -25,7 +25,7 @@
             </li>
             <li class="nav-item">
               <a
-                v-if="channel.type === 0 && haveViewPermission"
+                v-if="channel.type === 0 && hasViewPermission"
                 @click="switchPage(Page.listening)"
                 class="nav-link"
                 style="font-weight: bold; font-size: 18px; color: white"
@@ -41,14 +41,14 @@
             :guild="guild"
             :allowUsers="allowUsers"
             :allowRoles="allowRoles"
-            :have-view-permission="haveViewPermission"
+            :has-view-permission="hasViewPermission"
             :channel="channel"
             :deny-roles="denyRoles"
             :deny-users="denyUsers"
           />
           <h3 v-if="page === Page.listening"><MessageWatcher /></h3>
           <h3 v-if="page === Page.script">
-            <MessagesMassDeleter />
+            <!-- <MessagesMassDeleter /> -->
           </h3>
         </div>
       </div>
@@ -78,7 +78,7 @@ const allowUsers: Ref<APIGuildMember[]> = ref([])
 const allowRoles: Ref<APIRole[]> = ref([])
 const denyUsers: Ref<APIGuildMember[]> = ref([])
 const denyRoles: Ref<APIRole[]> = ref([])
-const haveViewPermission: Ref<boolean> = ref(false)
+const hasViewPermission: Ref<boolean> = ref(false)
 
 const props = defineProps<{
   guildRoles: APIRole[]
@@ -89,7 +89,7 @@ const props = defineProps<{
 async function openModal(inputChannel: DiscordChannel, ViewPermission: boolean) {
   channel.value = inputChannel
   showModal.value = true
-  haveViewPermission.value = ViewPermission
+  hasViewPermission.value = ViewPermission
   page.value = Page.info
   await parsePermission(channel.value)
 }

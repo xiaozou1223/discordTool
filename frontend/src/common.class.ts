@@ -14,17 +14,17 @@ export class ApiResponse<T> {
 }
 
 export class Pagination {
-  currentPage: number;
-  pageSize: number;
-  total: number;
-  havePrevious: boolean;
-  haveNext: boolean;
+  currentPage: number
+  pageSize: number
+  total: number
+  hasPrevious: boolean
+  hasNext: boolean
 
-  constructor(currentPage: number, pageSize: number, total: number, havePrevious: boolean, haveNext: boolean) {
-    this.currentPage = currentPage;
-    this.pageSize = pageSize;
-    this.total = total;
-    this.havePrevious = havePrevious;
-    this.haveNext = haveNext;
+  constructor(currentPage: number, pageSize: number, total: number, hasPrevious: boolean, hasNext: boolean) {
+    this.currentPage = currentPage
+    this.pageSize = pageSize
+    this.total = total
+    this.hasPrevious = hasPrevious
+    this.hasNext = hasNext
   }
 }
