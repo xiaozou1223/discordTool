@@ -47,8 +47,17 @@
             :channel="channel"
             :user-guild-member-info="userGuildMemberInfo"
           />
+          <MessagesMassDeleter
+            v-if="page === Page.script"
+            :channel="channel"
+            :guild="guild!"
+            :has-view-permission="hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)"
+            :has-channel-manage-permission="
+              hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ManageChannels)
+            "
+            :user-id="user.discordUserId!"
+          />
           <MessageWatcher v-if="page === Page.listening" />
-          <!-- <MessagesMassDeleter v-if="page === Page.script"/> -->
         </div>
       </div>
     </div>
@@ -57,8 +66,7 @@
 
 <script setup lang="ts">
 import { DiscordChannel } from '@/api/guild/dto/read-channel'
-import type { ReadGuildsResponseDto } from '@/api/user/dto/read-user.dto'
-import { PermissionFlagsBits, type APIGuild, type APIGuildMember, type APIRole } from 'discord-api-types/v10'
+import { PermissionFlagsBits, type APIGuild, type APIGuildMember } from 'discord-api-types/v10'
 import { ref, defineExpose, type Ref } from 'vue'
 import ChannelInfo from './ChannelInfo.vue'
 import MessagesMassDeleter from './MessagesMassDeleter.vue'

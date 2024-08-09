@@ -1,6 +1,5 @@
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
-import type { ReadGuildsResponseDto, ReadUserResponseDto } from '@/api/user/dto/read-user.dto'
-import type { APIGuild, APIGuildMember, APIRole } from 'discord-api-types/v10'
+import { type APIGuild, type APIGuildMember, type APIRole, PermissionFlagsBits } from 'discord-api-types/v10'
 
 export interface PermissionOverwrite {
   id: string
@@ -24,6 +23,9 @@ export function hasRequiredPermission(
   PermissionFlagsBit: bigint,
 ): boolean {
   if (guild.owner_id === guildMember.user.id) {
+    return true
+  }
+  if ((UserOwnChannelPermissions & PermissionFlagsBits.Administrator) === PermissionFlagsBits.Administrator) {
     return true
   }
   const hasPermission = (UserOwnChannelPermissions & PermissionFlagsBit) === PermissionFlagsBit
