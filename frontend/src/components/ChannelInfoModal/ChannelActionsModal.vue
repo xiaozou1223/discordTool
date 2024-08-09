@@ -40,24 +40,32 @@
           <button class="btn-close btn-close-white" type="button" aria-label="Close" @click="showModal = false"></button>
         </div>
         <div class="modal-body">
-          <ChannelInfo
-            v-if="page === Page.info"
-            :guild="guild"
-            :has-view-permission="hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)"
-            :channel="channel"
-            :user-guild-member-info="userGuildMemberInfo"
-          />
-          <MessagesMassDeleter
-            v-if="page === Page.script"
-            :channel="channel"
-            :guild="guild!"
-            :has-view-permission="hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)"
-            :has-channel-manage-permission="
-              hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ManageChannels)
-            "
-            :user-id="user.discordUserId!"
-          />
-          <MessageWatcher v-if="page === Page.listening" />
+          <keep-alive>
+            <ChannelInfo
+              v-if="page === Page.info"
+              :key="channel.id"
+              :guild="guild"
+              :has-view-permission="hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)"
+              :channel="channel"
+              :user-guild-member-info="userGuildMemberInfo"
+            />
+          </keep-alive>
+          <keep-alive>
+            <MessagesMassDeleter
+              v-if="page === Page.script"
+              :key="channel.id"
+              :channel="channel"
+              :guild="guild"
+              :has-view-permission="hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)"
+              :has-channel-manage-permission="
+                hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ManageChannels)
+              "
+              :user-id="user.discordUserId!"
+            />
+          </keep-alive>
+          <keep-alive>
+            <MessageWatcher v-if="page === Page.listening" />
+          </keep-alive>
         </div>
       </div>
     </div>
