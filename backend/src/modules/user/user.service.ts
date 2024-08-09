@@ -145,7 +145,7 @@ export class UserService {
       response.set(RESPONSE_MESSAGES.TOKEN_INVALID);
       return response;
     }
-    const discordResult = await DiscordApi.getGuilds(token);
+    const discordResult = await DiscordApi.getUserGuilds(token);
     const guildsData: ReadGuildsDataResponseDto[] = (discordResult.data as APIGuild[]).map((item) => {
       return { id: item.id, icon: item.icon, name: item.name, owner: item.owner };
     });

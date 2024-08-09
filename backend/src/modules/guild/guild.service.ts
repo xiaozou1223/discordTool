@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { APIGuildChannel, APIGuildMember, APIMessage, APIRole, APIUser } from 'discord-api-types/v10';
+import { APIGuild, APIGuildChannel, APIGuildMember, APIMessage, APIRole, APIUser } from 'discord-api-types/v10';
 import { DiscordApi } from 'src/discord.api';
 import { DiscordChannel } from './dto/read-channel';
 import { ApiResponse } from 'src/common.class';
@@ -61,6 +61,13 @@ export class GuildService {
   async deleteMessage(token: string, channelId: string, messageId: string) {
     const response = new ApiResponse<null>();
     const discordResult = await DiscordApi.deleteMessage(token, channelId, messageId);
+    response.set(discordResult);
+    return response;
+  }
+
+  async getGuildInfo(token: string, guildId: string) {
+    const response = new ApiResponse<APIGuild>();
+    const discordResult = await DiscordApi.getGuild(token, guildId);
     response.set(discordResult);
     return response;
   }

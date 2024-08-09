@@ -39,6 +39,14 @@ export class GuildController {
     return res.status(result.statusCode).send(result);
   }
 
+  @Get(':guildId')
+  async getGuildInfo(@Param('guildId') guildId: string, @Req() req: Request, @Res() res: Response) {
+    const user = jwtDecode.jwtDecode(req.cookies['jwt']) as ReadUserResponseDto;
+    const token = await this.userService.getToken(user.account);
+    const result = await this.guildService.getGuildInfo(token, guildId);
+    return res.status(result.statusCode).send(result);
+  }
+
   @Get(':guildId/members/:discordUserId')
   async getUser(@Param('guildId') guildId: string, @Param('discordUserId') discordUserId: string, @Req() req: Request, @Res() res: Response) {
     const user = jwtDecode.jwtDecode(req.cookies['jwt']) as ReadUserResponseDto;

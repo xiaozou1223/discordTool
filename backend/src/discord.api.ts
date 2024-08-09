@@ -51,10 +51,32 @@ export const DiscordApi = {
     return response;
   },
 
-  async getGuilds(token: string) {
+  async getUserGuilds(token: string) {
     const response = new ApiResponse<APIGuild>();
     try {
       const dcResponse = await axios.get(`${host}/${version}/users/@me/guilds`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      if (dcResponse.status === HttpStatus.OK) {
+        response.data = dcResponse.data as APIGuild[];
+        response.message = '讀取成功';
+        response.success = true;
+        response.statusCode = HttpStatus.OK;
+        return response;
+      }
+    } catch {}
+    response.message = '驗證失敗';
+    response.success = false;
+    response.statusCode = HttpStatus.UNAUTHORIZED;
+    return response;
+  },
+
+  async getGuild(token: string, guildId: string) {
+    const response = new ApiResponse<APIGuild>();
+    try {
+      const dcResponse = await axios.get(`${host}/${version}/guilds/${guildId}`, {
         headers: {
           Authorization: `${token}`,
         },
