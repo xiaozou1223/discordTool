@@ -11,14 +11,14 @@
         @click="
           parentChannel.type === 4
             ? handleShow(parentChannel.type, parentChannel.id)
-            : openModal(parentChannel, checkPermission(guild, parentChannel))
+            : openModal(parentChannel, calcUserOwnChannelPermissions(guild, parentChannel, userPermission, userRoleIds, user))
         "
       >
         <div class="col-4" style="text-align: center">
           <span></span>
         </div>
         <div class="col" :id="parentChannel.id" style="text-align: left; padding-top: 11px; padding-bottom: 11px">
-          <span style="font-weight: bold" :style="{ color: checkPermission(guild, parentChannel) ? 'inherit' : 'red' }">{{
+          <span style="font-weight: bold" :style="{ color: checkViewChannelPermission(guild, parentChannel) ? 'inherit' : 'red' }">{{
             parentChannel.name
           }}</span>
         </div>
@@ -34,14 +34,20 @@
           <div
             v-for="childChannel of getChildChannels(parentChannel.id)"
             class="channel-row row"
-            @click="childChannel.type !== 4 ? openModal(childChannel, checkPermission(guild, childChannel)) : null"
+            @click="
+              childChannel.type !== 4
+                ? openModal(childChannel, calcUserOwnChannelPermissions(guild, childChannel, userPermission, userRoleIds, user))
+                : null
+            "
             :key="childChannel.id"
           >
             <div class="col-5" style="text-align: center">
               <span></span>
             </div>
             <div class="col" :id="childChannel.id" style="text-align: left; padding-top: 11px; padding-bottom: 11px">
-              <span :style="{ 'font-weight': 'bold', color: checkPermission(guild, childChannel) ? 'inherit' : 'red' }">{{ childChannel.name }}</span>
+              <span :style="{ 'font-weight': 'bold', color: checkViewChannelPermission(guild, childChannel) ? 'inherit' : 'red' }">{{
+                childChannel.name
+              }}</span>
             </div>
           </div>
         </div>
@@ -60,6 +66,7 @@ import type { ApiResponse } from '@/common.class'
 import { ref, toRaw, watch, type Ref } from 'vue'
 import { UserStore } from './User'
 import ChannelActionsModal from './ChannelInfoModal/ChannelActionsModal.vue'
+import { hasRequiredPermission, calcUserOwnChannelPermissions, calcUserRolesPermission, getChannelSymbol } from './Discord'
 
 const { user } = UserStore()
 const props = defineProps<{
@@ -82,28 +89,9 @@ watch(
       }
       {
         const response: ApiResponse<DiscordChannel> = await getChannelsApi(newGuild.id)
-        const symbol = (type: number) => {
-          switch (type) {
-            case 0: {
-              return '＃'
-            }
-            case 2: {
-              return '🔊'
-            }
-            case 4: {
-              return '▶'
-            }
-            case 5: {
-              return '📢'
-            }
-            default: {
-              return ''
-            }
-          }
-        }
         channels.value = response.data as DiscordChannel[]
         channels.value.forEach((channel) => {
-          return (channel.name = `${symbol(channel.type)} ${channel.name}`)
+          return (channel.name = `${getChannelSymbol(channel.type)} ${channel.name}`)
         })
         getParentAndNotParentChannels()
       }
@@ -119,9 +107,14 @@ watch(
   { immediate: true },
 )
 
-function openModal(channel: DiscordChannel, hasViewPermission: boolean) {
+function checkViewChannelPermission(guild: ReadGuildsResponseDto, channel: DiscordChannel) {
+  const userOwnChannelPermissions = calcUserOwnChannelPermissions(guild, channel, userPermission.value, userRoleIds.value, user.value)
+  return hasRequiredPermission(guild.owner, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)
+}
+
+function openModal(channel: DiscordChannel, userOwnChannelPermissions: bigint) {
   if (modalRef.value) {
-    modalRef.value.openModal(channel, hasViewPermission)
+    modalRef.value.openModal(channel, userOwnChannelPermissions)
   }
   console.log('------------------------------------')
   console.log(`使用者ID : ${user.value.discordUserId}`)
@@ -137,7 +130,7 @@ function openModal(channel: DiscordChannel, hasViewPermission: boolean) {
   )
   console.log(`頻道權限覆蓋設定 : `)
   console.log(toRaw(channel.permission_overwrites))
-  console.log(`有無權限查看 : ${hasViewPermission}`)
+  console.log(`有無權限查看 : ${checkViewChannelPermission(props.guild, channel)}`)
   console.log('------------------------------------')
 }
 
@@ -185,90 +178,6 @@ function getChildChannels(channelId: string) {
 async function getGuildRoles(guildId: string) {
   const dcResponse = (await getRoleByGuildIdApi(guildId)) as ApiResponse<APIRole>
   guildRoles.value = dcResponse.data as APIRole[]
-}
-
-interface PermissionOverwrite {
-  id: string
-  type: number
-  allow: string
-  deny: string
-}
-
-function checkPermission(guild: ReadGuildsResponseDto, channel: DiscordChannel): boolean {
-  if (guild.owner === true) {
-    return true
-  }
-  const everyonePermissionOverwrite = calcEveryonePermissionOverwrite(guild.id, userPermission.value, channel.permission_overwrites)
-  const rolesPermissionOverwrite = calcRolesPermissionOverwrite(everyonePermissionOverwrite, userRoleIds.value, channel.permission_overwrites)
-  const userPermissionOverwrite = calcUserPermissionOverwrite(user.value.discordUserId!, rolesPermissionOverwrite, channel.permission_overwrites)
-  const canViewChannel = (userPermissionOverwrite & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel
-  return canViewChannel
-}
-
-function calcUserRolesPermission(guildId: string, guildRoles: APIRole[], userRoleIds: string[]): bigint {
-  const everyonePermission = guildRoles.find((role) => {
-    return role.id === guildId
-  })!.permissions
-  let lastPermission = BigInt(everyonePermission)
-  const hasRoles: APIRole[] = []
-  for (const roleId of userRoleIds) {
-    const found = guildRoles.find((role) => {
-      return role.id === roleId
-    })
-    if (found) {
-      hasRoles.push(found)
-    }
-  }
-  hasRoles.forEach((role) => {
-    lastPermission |= BigInt(role.permissions)
-  })
-  return lastPermission
-}
-
-function calcEveryonePermissionOverwrite(guildId: string, userPermission: bigint, permissionOverwrites: PermissionOverwrite[]): bigint {
-  let lastPermission = userPermission
-  permissionOverwrites.forEach((permissionOverwrite) => {
-    if (permissionOverwrite.id === guildId) {
-      const allow = BigInt(permissionOverwrite.allow)
-      const deny = BigInt(permissionOverwrite.deny)
-      lastPermission &= ~deny
-      lastPermission |= allow
-    }
-  })
-  return lastPermission
-}
-
-function calcRolesPermissionOverwrite(currentPermission: bigint, userRoleIds: string[], permissionOverwrites: PermissionOverwrite[]): bigint {
-  let lastPermission = currentPermission
-  const allows: string[] = []
-  const denys: string[] = []
-  permissionOverwrites.forEach((permissionOverwrite) => {
-    if (permissionOverwrite.type === 0 && userRoleIds.includes(permissionOverwrite.id)) {
-      allows.push(permissionOverwrite.allow)
-      denys.push(permissionOverwrite.deny)
-    }
-  })
-  denys.forEach((deny) => {
-    lastPermission &= ~BigInt(deny)
-  })
-  allows.forEach((allow) => {
-    lastPermission |= BigInt(allow)
-  })
-  return lastPermission
-}
-
-function calcUserPermissionOverwrite(userId: string, userPermission: bigint, permissionOverwrites: PermissionOverwrite[]): bigint {
-  let lastPermission = userPermission
-  const userPermissionOverwrite = permissionOverwrites.find((permissionOverwrite) => {
-    return permissionOverwrite.type === 1 && permissionOverwrite.id === userId
-  })
-  if (userPermissionOverwrite) {
-    const allow = BigInt(userPermissionOverwrite.allow)
-    const deny = BigInt(userPermissionOverwrite.deny)
-    lastPermission &= ~deny
-    lastPermission |= allow
-  }
-  return lastPermission
 }
 </script>
 
