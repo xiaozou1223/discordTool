@@ -11,14 +11,14 @@
         @click="
           parentChannel.type === 4
             ? handleShow(parentChannel.type, parentChannel.id)
-            : openModal(parentChannel, calcUserOwnChannelPermissions(guild, parentChannel, userPermission, userRoleIds, user))
+            : openModal(parentChannel, calcUserOwnChannelPermissions(guild!, parentChannel, userGuildMemberInfo!))
         "
       >
         <div class="col-4" style="text-align: center">
           <span></span>
         </div>
         <div class="col" :id="parentChannel.id" style="text-align: left; padding-top: 11px; padding-bottom: 11px">
-          <span style="font-weight: bold" :style="{ color: checkViewChannelPermission(guild, parentChannel) ? 'inherit' : 'red' }">{{
+          <span style="font-weight: bold" :style="{ color: checkViewChannelPermission(guild!, parentChannel) ? 'inherit' : 'red' }">{{
             parentChannel.name
           }}</span>
         </div>
@@ -35,9 +35,7 @@
             v-for="childChannel of getChildChannels(parentChannel.id)"
             class="channel-row row"
             @click="
-              childChannel.type !== 4
-                ? openModal(childChannel, calcUserOwnChannelPermissions(guild, childChannel, userPermission, userRoleIds, user))
-                : null
+              childChannel.type !== 4 ? openModal(childChannel, calcUserOwnChannelPermissions(guild!, childChannel, userGuildMemberInfo!)) : null
             "
             :key="childChannel.id"
           >
@@ -45,7 +43,7 @@
               <span></span>
             </div>
             <div class="col" :id="childChannel.id" style="text-align: left; padding-top: 11px; padding-bottom: 11px">
-              <span :style="{ 'font-weight': 'bold', color: checkViewChannelPermission(guild, childChannel) ? 'inherit' : 'red' }">{{
+              <span :style="{ 'font-weight': 'bold', color: checkViewChannelPermission(guild!, childChannel) ? 'inherit' : 'red' }">{{
                 childChannel.name
               }}</span>
             </div>
@@ -54,41 +52,44 @@
       </div>
     </div>
   </div>
-  <ChannelActionsModal ref="modalRef" :guild="guild" :guildRoles="guildRoles" :channels="channels" />
+  <ChannelActionsModal ref="modalRef" :guild="guild!" :channels="channels" :user-guild-member-info="userGuildMemberInfo!" />
 </template>
 
 <script setup lang="ts">
-import { PermissionFlagsBits, type APIGuildMember, type APIRole } from 'discord-api-types/v10'
+import { PermissionFlagsBits, type APIGuild, type APIGuildMember } from 'discord-api-types/v10'
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
-import { getChannelsApi, getMemberByUserIdAndGuildIdApi, getRoleByGuildIdApi } from '@/api/guild/guild'
-import { ReadGuildsResponseDto } from '@/api/user/dto/read-user.dto'
+import { getChannelsApi, getGuildApi, getMemberByUserIdAndGuildIdApi } from '@/api/guild/guild'
 import type { ApiResponse } from '@/common.class'
 import { ref, toRaw, watch, type Ref } from 'vue'
 import { UserStore } from './User'
 import ChannelActionsModal from './ChannelInfoModal/ChannelActionsModal.vue'
-import { hasRequiredPermission, calcUserOwnChannelPermissions, calcUserRolesPermission, getChannelSymbol } from './Discord'
+import { hasRequiredPermission, calcUserOwnChannelPermissions, calcUserOwnRolesPermission, getChannelSymbol } from './Discord'
 
 const { user } = UserStore()
 const props = defineProps<{
-  guild: ReadGuildsResponseDto
+  guildId: string
 }>()
 const channels: Ref<DiscordChannel[]> = ref([])
 const parentChannels: Ref<DiscordChannel[]> = ref([])
 const visibleChildChannels: Ref<string[]> = ref([])
-const userRoleIds: Ref<string[]> = ref([])
-const guildRoles: Ref<APIRole[]> = ref([])
+const userGuildMemberInfo: Ref<APIGuildMember | null> = ref(null)
+const guild: Ref<APIGuild | null> = ref(null)
 const userPermission: Ref<bigint> = ref(BigInt(0))
 const modalRef = ref<InstanceType<typeof ChannelActionsModal> | null>(null)
 
 watch(
-  () => props.guild,
-  async (newGuild) => {
-    if (newGuild) {
+  () => props.guildId,
+  async (newGuildId) => {
+    if (newGuildId) {
       {
-        await getGuildRoles(newGuild.id)
+        guild.value = await getGuildInfo(newGuildId)
       }
       {
-        const response: ApiResponse<DiscordChannel> = await getChannelsApi(newGuild.id)
+        const response: ApiResponse<APIGuildMember> = await getMemberByUserIdAndGuildIdApi(newGuildId, user.value.discordUserId!)
+        userGuildMemberInfo.value = response.data as APIGuildMember
+      }
+      {
+        const response: ApiResponse<DiscordChannel> = await getChannelsApi(newGuildId)
         channels.value = response.data as DiscordChannel[]
         channels.value.forEach((channel) => {
           return (channel.name = `${getChannelSymbol(channel.type)} ${channel.name}`)
@@ -96,42 +97,43 @@ watch(
         getParentAndNotParentChannels()
       }
       {
-        const response: ApiResponse<APIGuildMember> = await getMemberByUserIdAndGuildIdApi(newGuild.id, user.value.discordUserId!)
-        userRoleIds.value = (response.data as APIGuildMember).roles
-      }
-      {
-        userPermission.value = calcUserRolesPermission(props.guild.id, guildRoles.value, userRoleIds.value)
+        userPermission.value = calcUserOwnRolesPermission(guild.value, userGuildMemberInfo.value)
       }
     }
   },
   { immediate: true },
 )
 
-function checkViewChannelPermission(guild: ReadGuildsResponseDto, channel: DiscordChannel) {
-  const userOwnChannelPermissions = calcUserOwnChannelPermissions(guild, channel, userPermission.value, userRoleIds.value, user.value)
-  return hasRequiredPermission(guild.owner, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)
+async function getGuildInfo(guildId: string) {
+  const result = await getGuildApi(guildId)
+  return result.data! as APIGuild
+}
+
+function checkViewChannelPermission(guild: APIGuild, channel: DiscordChannel): boolean {
+  const userOwnChannelPermissions = calcUserOwnChannelPermissions(guild, channel, userGuildMemberInfo.value!)
+  return hasRequiredPermission(guild, userGuildMemberInfo.value!, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)
 }
 
 function openModal(channel: DiscordChannel, userOwnChannelPermissions: bigint) {
-  if (modalRef.value) {
-    modalRef.value.openModal(channel, userOwnChannelPermissions)
-  }
   console.log('------------------------------------')
   console.log(`使用者ID : ${user.value.discordUserId}`)
-  console.log(`伺服器名稱 : ${props.guild.name}`)
-  console.log(`伺服器ID : ${props.guild.id}`)
+  console.log(`伺服器名稱 : ${props.guildId}`)
+  console.log(`伺服器ID : ${props.guildId}`)
   console.log(`頻道名稱 : ${channel.name}`)
   console.log(`頻道ID : ${channel.id}`)
   console.log(`使用者持有身分組 : `)
   console.log(
-    toRaw(guildRoles.value).filter((role) => {
-      return userRoleIds.value.includes(role.id) || role.id === props.guild.id
+    toRaw(guild.value!.roles).filter((role) => {
+      return userGuildMemberInfo.value!.roles.includes(role.id) || role.id === props.guildId
     }),
   )
   console.log(`頻道權限覆蓋設定 : `)
   console.log(toRaw(channel.permission_overwrites))
-  console.log(`有無權限查看 : ${checkViewChannelPermission(props.guild, channel)}`)
+  console.log(`有無權限查看 : ${checkViewChannelPermission(guild.value!, channel)}`)
   console.log('------------------------------------')
+  if (modalRef.value) {
+    modalRef.value.openModal(channel, userOwnChannelPermissions)
+  }
 }
 
 function showCollapse(event: Event) {
@@ -174,10 +176,6 @@ function getChildChannels(channelId: string) {
       }
       return a.position - b.position
     })
-}
-async function getGuildRoles(guildId: string) {
-  const dcResponse = (await getRoleByGuildIdApi(guildId)) as ApiResponse<APIRole>
-  guildRoles.value = dcResponse.data as APIRole[]
 }
 </script>
 

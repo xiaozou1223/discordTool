@@ -16,7 +16,9 @@
             </li>
             <li class="nav-item">
               <a
-                v-if="channel.type === 0 && hasRequiredPermission(guild.owner, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)"
+                v-if="
+                  channel.type === 0 && hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)
+                "
                 @click="switchPage(Page.script)"
                 class="nav-link"
                 style="font-weight: bold; font-size: 18px; color: white"
@@ -25,7 +27,9 @@
             </li>
             <li class="nav-item">
               <a
-                v-if="channel.type === 0 && hasRequiredPermission(guild.owner, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)"
+                v-if="
+                  channel.type === 0 && hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)
+                "
                 @click="switchPage(Page.listening)"
                 class="nav-link"
                 style="font-weight: bold; font-size: 18px; color: white"
@@ -39,9 +43,9 @@
           <ChannelInfo
             v-if="page === Page.info"
             :guild="guild"
-            :has-view-permission="hasRequiredPermission(guild.owner, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)"
+            :has-view-permission="hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)"
             :channel="channel"
-            :guild-roles="guildRoles"
+            :user-guild-member-info="userGuildMemberInfo"
           />
           <MessageWatcher v-if="page === Page.listening" />
           <!-- <MessagesMassDeleter v-if="page === Page.script"/> -->
@@ -54,13 +58,15 @@
 <script setup lang="ts">
 import { DiscordChannel } from '@/api/guild/dto/read-channel'
 import type { ReadGuildsResponseDto } from '@/api/user/dto/read-user.dto'
-import { PermissionFlagsBits, type APIRole } from 'discord-api-types/v10'
+import { PermissionFlagsBits, type APIGuild, type APIGuildMember, type APIRole } from 'discord-api-types/v10'
 import { ref, defineExpose, type Ref } from 'vue'
 import ChannelInfo from './ChannelInfo.vue'
 import MessagesMassDeleter from './MessagesMassDeleter.vue'
 import MessageWatcher from './MessageWatcher.vue'
 import { hasRequiredPermission } from '../Discord'
+import { UserStore } from '../User'
 enum Page {
+  none,
   info,
   script,
   listening,
@@ -69,12 +75,13 @@ enum Page {
 const userOwnChannelPermissions: Ref<bigint> = ref(BigInt(0))
 const showModal: Ref<boolean> = ref(false)
 const channel: Ref<DiscordChannel> = ref(new DiscordChannel())
-const page: Ref<Page> = ref(Page.info)
+const page: Ref<Page> = ref(Page.none)
+const { user } = UserStore()
 
 defineProps<{
-  guildRoles: APIRole[]
-  guild: ReadGuildsResponseDto
+  guild: APIGuild
   channels: DiscordChannel[]
+  userGuildMemberInfo: APIGuildMember
 }>()
 
 async function openModal(inputChannel: DiscordChannel, newUserOwnChannelPermissions: bigint) {

@@ -27,7 +27,7 @@
           </div>
         </div>
         <div style="margin-top: 10px" :id="`collapse-${guild.id}`" class="collapse col-12">
-          <Channel v-if="visibleGuilds.includes(guild.id)" :guild="guild" />
+          <Channel v-if="visibleGuilds.includes(guild.id)" :guild-id="guild.id" />
         </div>
       </div>
     </div>
@@ -54,6 +54,7 @@ const filteredGuilds = computed(() => {
 async function loadData() {
   guilds.value = (await getGuildsApi(user.value.account)).data as ReadGuildsResponseDto[]
 }
+
 watch(
   user,
   async (newUser, oldUser) => {
@@ -62,7 +63,7 @@ watch(
       await loadData()
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 function handleShow(guildId: string) {

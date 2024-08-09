@@ -73,18 +73,19 @@
     </div>
     <hr />
     <div
-      v-for="user of allowUsers"
+      v-for="member of allowMembers"
       class="row"
       style="margin-right: 0px; margin-left: 0px; margin-top: 2px; margin-block-end: 2px"
-      :key="user.user.id"
+      :key="member.user.id"
+      @click="console.log(member)"
     >
       <div class="col-2" style="text-align: center">
         <img
-          v-if="user.user.avatar"
+          v-if="member.user.avatar"
           class="rounded-circle"
           width="50px"
           height="50px"
-          :src="`https://cdn.discordapp.com/avatars/${user.user.id}/${user.user.avatar}.png`"
+          :src="`https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png`"
         />
         <img
           v-else
@@ -96,23 +97,24 @@
       </div>
       <div class="col" style="text-align: center">
         <span class="selectable-text" style="font-weight: bold; font-size: 18px; color: white">
-          {{ user.nick || user.user.username || user.user.global_name }}</span
+          {{ member.nick || member.user.global_name || member.user.username }}</span
         >
       </div>
     </div>
     <div
-      v-for="user of denyUsers"
+      v-for="member of denyMembers"
       class="row"
       style="margin-right: 0px; margin-left: 0px; margin-top: 2px; margin-block-end: 2px"
-      :key="user.user.id"
+      :key="member.user.id"
+      @click="console.log(member)"
     >
       <div class="col-2" style="text-align: center">
         <img
-          v-if="user.user.avatar"
+          v-if="member.user.avatar"
           class="rounded-circle"
           width="50px"
           height="50px"
-          :src="`https://cdn.discordapp.com/avatars/${user.user.id}/${user.user.avatar}.png`"
+          :src="`https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png`"
         />
         <img
           v-else
@@ -124,7 +126,7 @@
       </div>
       <div class="col" style="text-align: center">
         <span class="selectable-text" style="font-weight: bold; font-size: 18px; color: red">
-          {{ user.nick || user.user.username || user.user.global_name }}</span
+          {{ member.nick || member.user.global_name || member.user.username }}</span
         >
       </div>
     </div>
@@ -133,54 +135,53 @@
 <script setup lang="ts">
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
 import { getGuildMemberApi } from '@/api/guild/guild'
-import type { ReadGuildsResponseDto } from '@/api/user/dto/read-user.dto'
-import { PermissionFlagsBits, type APIGuildMember, type APIRole } from 'discord-api-types/v10'
-import { onMounted, ref, watch, type Ref } from 'vue'
+import { PermissionFlagsBits, type APIGuild, type APIGuildMember, type APIRole } from 'discord-api-types/v10'
+import { ref, watch, onMounted, type Ref } from 'vue'
+import { calcUserOwnChannelPermissions, hasRequiredPermission, calcRolesPermissionOverwrite } from '../Discord'
 
-const allowUsers: Ref<APIGuildMember[]> = ref([])
+const allowMembers: Ref<APIGuildMember[]> = ref([])
 const allowRoles: Ref<APIRole[]> = ref([])
-const denyUsers: Ref<APIGuildMember[]> = ref([])
+const denyMembers: Ref<APIGuildMember[]> = ref([])
 const denyRoles: Ref<APIRole[]> = ref([])
 
 const props = defineProps<{
-  guild: ReadGuildsResponseDto
+  guild: APIGuild
   channel: DiscordChannel
   hasViewPermission: boolean
-  guildRoles: APIRole[]
+  userGuildMemberInfo: APIGuildMember
 }>()
 
-onMounted(() => {
-  calcRolesAndUsersViewChannelPermission(props.channel)
+onMounted(async () => {
+  await calcRolesAndUsersViewChannelPermission(props.channel)
 })
-
 watch(
   () => props.channel,
-  (newChannel) => {
-    calcRolesAndUsersViewChannelPermission(newChannel)
+  async (newChannel) => {
+    await calcRolesAndUsersViewChannelPermission(newChannel)
   },
 )
 
 async function calcRolesAndUsersViewChannelPermission(channel: DiscordChannel) {
   allowRoles.value = []
-  allowUsers.value = []
+  allowMembers.value = []
   denyRoles.value = []
-  denyUsers.value = []
-  const everyonePermission = props.guildRoles.find((role) => {
+  denyMembers.value = []
+  const everyonePermission = props.guild.roles.find((role) => {
     return role.id === props.guild.id
   })!.permissions
+
   for (const permissionOverwrite of channel.permission_overwrites) {
     if (permissionOverwrite.type === 0) {
-      const role = props.guildRoles.find((guildRole) => {
+      const role = props.guild.roles.find((guildRole) => {
         return guildRole.id === permissionOverwrite.id
       })
       const rolePermission = BigInt(everyonePermission) | BigInt(role!.permissions)
-      let lastPermission = BigInt(rolePermission)
-      const allow = BigInt(permissionOverwrite.allow)
-      const deny = BigInt(permissionOverwrite.deny)
-      lastPermission &= ~deny
-      lastPermission |= allow
+      const lastPermission = calcRolesPermissionOverwrite(rolePermission, [permissionOverwrite.id], [permissionOverwrite])
       const canViewChannel = (lastPermission & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel
-
+      if (channel.id !== props.channel.id) {
+        //防止數據汙染
+        return
+      }
       if (canViewChannel) {
         allowRoles.value.push(role!)
       } else {
@@ -190,21 +191,25 @@ async function calcRolesAndUsersViewChannelPermission(channel: DiscordChannel) {
   }
   for (const permissionOverwrite of channel.permission_overwrites) {
     if (permissionOverwrite.type === 1) {
-      let lastPermission = BigInt(everyonePermission)
-      const allow = BigInt(permissionOverwrite.allow)
-      const deny = BigInt(permissionOverwrite.deny)
-      lastPermission &= ~deny
-      lastPermission |= allow
-      const canViewChannel = (lastPermission & PermissionFlagsBits.ViewChannel) === PermissionFlagsBits.ViewChannel
-      const result = await getGuildMemberApi(props.guild.id, permissionOverwrite.id)
-      const user = result.data as APIGuildMember
-      if (canViewChannel) {
-        allowUsers.value.push(user)
+      const getUserDataResult = await getGuildMemberApi(props.guild.id, permissionOverwrite.id)
+      const member = getUserDataResult.data as APIGuildMember
+      const hasViewChannelPermission = checkMemberViewChannelPermission(member, props.guild, channel)
+      if (channel.id !== props.channel.id) {
+        //防止數據汙染
+        return
+      }
+      if (hasViewChannelPermission) {
+        allowMembers.value.push(member)
       } else {
-        denyUsers.value.push(user)
+        denyMembers.value.push(member)
       }
     }
   }
+}
+
+function checkMemberViewChannelPermission(guildMember: APIGuildMember, guild: APIGuild, channel: DiscordChannel) {
+  const userOwnChannelPermissions = calcUserOwnChannelPermissions(guild, channel, guildMember)
+  return hasRequiredPermission(guild, guildMember, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)
 }
 </script>
 <style>
