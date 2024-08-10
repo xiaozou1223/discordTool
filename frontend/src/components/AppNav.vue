@@ -83,11 +83,23 @@ function switchRouter(routerName: string) {
   router.push({ name: routerName })
   if (navCollapse.value) {
     const isExpanded = navCollapse.value.classList.contains('show')
+    const isTransitioning = navCollapse.value.classList.contains('collapsing')
     if (isExpanded) {
       const collapse = new Collapse(navCollapse.value)
       collapse.hide()
+    } else if (isTransitioning) {
+      navCollapse.value!.addEventListener('shown.bs.collapse', handleShown)
     }
   }
+}
+
+function handleShown() {
+  if (!navCollapse.value) {
+    return
+  }
+  const collapse = new Collapse(navCollapse.value)
+  collapse.hide()
+  navCollapse.value.removeEventListener('shown.bs.collapse', handleShown)
 }
 
 function toggleNav() {
