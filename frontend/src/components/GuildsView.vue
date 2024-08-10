@@ -53,16 +53,19 @@ const filteredGuilds = computed(() => {
   return guilds.value.filter((guild) => guild.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
 })
 
-async function loadData() {
+async function getGuilds() {
+  console.log('getGuilds!')
   guilds.value = (await getGuildsApi(user.value.account)).data as ReadGuildsResponseDto[]
 }
 
 watch(
   user,
   async (newUser, oldUser) => {
-    if ((!oldUser && newUser.account !== undefined) || (oldUser && newUser.account !== oldUser.account)) {
-      console.log('LoadGuild!')
-      await loadData()
+    if (!newUser.isTokenValid) {
+      return
+    }
+    if (!oldUser || (oldUser && newUser.discordUserId !== oldUser.discordUserId)) {
+      await getGuilds()
     }
   },
   { immediate: true },
