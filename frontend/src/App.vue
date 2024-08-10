@@ -1,7 +1,13 @@
 <template>
   <div class="content-wrapper">
     <div class="content">
-      <RouterView />
+      <router-view v-slot="{ Component }">
+        <transition>
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </transition>
+      </router-view>
     </div>
     <Footer class="footer" />
   </div>
