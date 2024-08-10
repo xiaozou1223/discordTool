@@ -4,7 +4,7 @@ import { ref } from 'vue';
 const user = ref(new ReadUserResponseDto());
 
 const setUser = (newUser: ReadUserResponseDto) => {
-  console.log('getUser!');
+  console.log('setUser!')
   user.value = newUser;
 };
 

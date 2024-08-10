@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../components/UserLogin.vue'
 import Signup from '../components/UserSignup.vue'
 import User from '@/components/UserProfile.vue'
-import Guild from '../components/GuildRow.vue'
+import Guild from '../components/GuildsView.vue'
 const routes = [
   {
     path: '/login',
