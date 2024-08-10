@@ -1,34 +1,35 @@
 <template>
-    <div class="d-flex flex-column min-vh-100">
-      <RouterView class="flex-fill" />
-      <Footer />
+  <div class="content-wrapper">
+    <div class="content">
+      <RouterView />
     </div>
-  </template>
-  
-  <script setup lang="ts">
-  import { RouterView } from 'vue-router';
-  import Footer from './components/FooterComponent.vue';
-  </script>
-  
-  <style scoped>
-    .d-flex {
-      display: flex;
-    }
-  
-    .flex-column {
-      flex-direction: column;
-    }
-  
-    .min-vh-100 {
-      min-height: 100vh;
-    }
-  
-    .flex-fill {
-      flex: 1 0 auto;
-    }
-  
-    .mt-auto {
-      margin-top: auto;
-    }
-  </style>
-  
+    <Footer class="footer" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+import Footer from './components/FooterComponent.vue'
+</script>
+
+<style scoped>
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  padding-bottom: 50px;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  height: 50px;
+}
+</style>

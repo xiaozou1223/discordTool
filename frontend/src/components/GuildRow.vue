@@ -1,8 +1,10 @@
 <template>
   <Nav />
-  <section class="py-5">
-    <input type="text" v-model="searchQuery" placeholder="搜尋" class="form-control mb-3" style="max-width: 300px; margin: 0 auto" />
-    <div class="container py-5" style="text-align: center; background: #322e2e">
+  <div class="container py-2 sticky-search">
+    <input type="text" v-model="searchQuery" placeholder="搜尋" class="form-control" style="max-width: 300px; margin: 0 auto" />
+  </div>
+  <section class="py-2" style="margin-top: 50px">
+    <div class="container py-2" style="text-align: center; background: #322e2e">
       <div v-for="guild of filteredGuilds" :key="guild.id">
         <div
           class="row guild-row"
@@ -95,5 +97,13 @@ span {
     display: block;
     margin-top: 10px;
   }
+}
+.sticky-search {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  z-index: 1000;
+  background-color: #0e526f;
 }
 </style>
