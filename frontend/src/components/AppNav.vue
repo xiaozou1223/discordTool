@@ -82,8 +82,11 @@ function logout() {
 function switchRouter(routerName: string) {
   router.push({ name: routerName })
   if (navCollapse.value) {
-    const collapse = new Collapse(navCollapse.value)
-    collapse.hide()
+    const isExpanded = navCollapse.value.classList.contains('show')
+    if (isExpanded) {
+      const collapse = new Collapse(navCollapse.value)
+      collapse.hide()
+    }
   }
 }
 
