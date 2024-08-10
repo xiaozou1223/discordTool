@@ -5,7 +5,10 @@
   </div>
   <section class="py-2" style="margin-top: 50px">
     <div class="container py-2" style="text-align: center; background: #322e2e">
-      <div v-for="guild of filteredGuilds" :key="guild.id">
+      <div v-if="isLoading" style="margin-top: 10px">
+        <h3>載入中...</h3>
+      </div>
+      <div v-else v-for="guild of filteredGuilds" :key="guild.id">
         <div
           class="row guild-row"
           style="margin-right: 0px; margin-left: 0px; margin-top: 10px"
@@ -48,6 +51,7 @@ const { user } = UserStore()
 const guilds: Ref<ReadGuildsResponseDto[]> = ref([])
 const visibleGuilds: Ref<string[]> = ref([])
 const searchQuery: Ref<string> = ref('')
+const isLoading: Ref<boolean> = ref(false)
 
 const filteredGuilds = computed(() => {
   return guilds.value.filter((guild) => guild.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
@@ -55,7 +59,9 @@ const filteredGuilds = computed(() => {
 
 async function getGuilds() {
   console.log('getGuilds!')
+  isLoading.value = true
   guilds.value = (await getGuildsApi(user.value.account)).data as ReadGuildsResponseDto[]
+  isLoading.value = false
 }
 
 watch(
