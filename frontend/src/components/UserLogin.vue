@@ -22,17 +22,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { loginAPI } from '../api/user/user'
 import type { ReadUserResponseDto } from '@/api/user/dto/read-user.dto'
 import type { ApiResponse } from '@/common.class'
 import router from '@/router'
 import { JwtStore, UserStore } from './User'
-const { reloadJwt } = JwtStore()
+const { reloadJwt, jwt } = JwtStore()
 const { reloadUser } = UserStore()
 
 const account = ref('')
 const password = ref('')
+
+watch(jwt, () => {
+  if (jwt) {
+    router.push({ name: 'DiscordServer' })
+  }
+})
 
 async function login() {
   if (!account.value || !password.value) {
