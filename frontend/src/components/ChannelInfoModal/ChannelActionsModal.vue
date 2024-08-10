@@ -7,7 +7,7 @@
     role="dialog"
     :style="{ display: showModal ? 'block' : 'none', 'background-color': 'rgba(0, 0, 0, 0.5)' }"
   >
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <ul class="nav">
@@ -39,7 +39,7 @@
           </ul>
           <button class="btn-close btn-close-white" type="button" aria-label="Close" @click="showModal = false"></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" style="height: 80vh">
           <keep-alive>
             <ChannelInfo
               v-if="page === Page.info"
@@ -133,13 +133,6 @@ function switchPage(goPage: Page) {
 
 .nav-link:active {
   background-color: rgba(255, 255, 255, 0.2);
-}
-
-@media (max-width: 991.98px) {
-  .nav-link {
-    display: block;
-    margin-top: 10px;
-  }
 }
 
 a {
