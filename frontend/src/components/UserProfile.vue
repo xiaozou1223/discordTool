@@ -1,5 +1,4 @@
 <template>
-  <Nav />
   <section class="py-5">
     <div class="container py-5" style="text-align: center; background: #322e2e">
       <div class="text-center">
@@ -19,7 +18,6 @@
 </template>
 <script setup lang="ts">
 import { updateUseApi } from '@/api/user/user'
-import Nav from './HomePageNav.vue'
 import { ReadUserResponseDto } from '@/api/user/dto/read-user.dto'
 import Cookies from 'js-cookie'
 import * as jwtDecode from 'jwt-decode'

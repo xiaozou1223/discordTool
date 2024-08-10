@@ -1,5 +1,4 @@
 <template>
-  <Nav />
   <div class="container py-2 sticky-search">
     <input type="text" v-model="searchQuery" placeholder="搜尋" class="form-control" style="max-width: 300px; margin: 0 auto" />
   </div>
@@ -40,7 +39,6 @@
 </template>
 
 <script setup lang="ts">
-import Nav from './HomePageNav.vue'
 import Channel from './ChannelRow.vue'
 import { getGuildsApi } from '@/api/user/user'
 import { ReadGuildsResponseDto } from '@/api/user/dto/read-user.dto'

@@ -1,5 +1,6 @@
 <template>
   <div class="content-wrapper">
+    <Nav />
     <div class="content">
       <router-view v-slot="{ Component }">
         <transition>
@@ -15,7 +16,8 @@
 
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import Footer from './components/FooterComponent.vue'
+import Footer from './components/AppFooter.vue'
+import Nav from './components/AppNav.vue'
 </script>
 
 <style scoped>

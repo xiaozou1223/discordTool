@@ -1,13 +1,11 @@
 <template>
-  <Nav />
   <section class="py-5">
     <div class="container py-5">
       <div class="row d-flex justify-content-center">
         <div class="col-md-6 col-xl-4">
           <div class="card">
             <div class="card-body text-center d-flex flex-column align-items-center">
-              <div class="bs-icon-xl bs-icon-circle bs-icon-primary shadow bs-icon my-4">
-              </div>
+              <div class="bs-icon-xl bs-icon-circle bs-icon-primary shadow bs-icon my-4"></div>
               <div class="mb-3">
                 <input class="form-control" type="account" name="account" @input="validateAccount" v-model="account" placeholder="帳號" />
               </div>
@@ -25,11 +23,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import Nav from './LoginSingupNav.vue'
 import { loginAPI } from '../api/user/user'
 import type { ReadUserResponseDto } from '@/api/user/dto/read-user.dto'
 import type { ApiResponse } from '@/common.class'
 import router from '@/router'
+import { JwtStore, UserStore } from './User'
+const { reloadJwt } = JwtStore()
+const { reloadUser } = UserStore()
 
 const account = ref('')
 const password = ref('')
@@ -44,6 +44,8 @@ async function login() {
   await loginAPI(account.value, password.value)
     .then(() => {
       router.push({ name: 'DiscordServer' })
+      reloadJwt()
+      reloadUser()
     })
     .catch((res: any) => {
       const result: ApiResponse<ReadUserResponseDto> = res

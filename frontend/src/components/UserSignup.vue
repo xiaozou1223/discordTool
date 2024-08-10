@@ -1,5 +1,4 @@
 <template>
-  <Nav />
   <section class="py-5">
     <div class="container py-5">
       <div class="row d-flex justify-content-center">
@@ -33,7 +32,6 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
-import Nav from './LoginSingupNav.vue'
 import { registerApi } from '../api/user/user'
 import type { ReadUserResponseDto } from '@/api/user/dto/read-user.dto'
 import type { ApiResponse } from '@/common.class'
