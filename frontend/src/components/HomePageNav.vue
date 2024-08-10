@@ -58,7 +58,7 @@ const iconUrl: Ref<string> = ref('')
 
 const token = Cookies.get('jwt')
 if (!token) {
-  router.push({ name: 'Login' })
+  window.location.href = '/login'
 } else {
   setUser(jwtDecode.jwtDecode(token))
   if (user.value.discordUserData) {
