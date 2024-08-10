@@ -1,5 +1,15 @@
 <template>
-  <nav class="navbar navbar-expand-md sticky-top py-3 navbar-dark" id="mainNav">
+  <nav v-if="!jwt" class="navbar navbar-expand-md sticky-top py-3 navbar-dark" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="/"><span>DiscordTool</span></a>
+      <div class="collapse navbar-collapse" id="navcol-1">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item"></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <nav v-else class="navbar navbar-expand-md sticky-top py-3 navbar-dark" id="mainNav">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center">
         <img class="rounded-circle" width="65" height="65" :src="iconUrl" />
@@ -8,11 +18,11 @@
       </a>
       <span v-if="user.isTokenValid" class="navbar-text" style="font-size: 15px; color: rgb(0, 255, 71); font-weight: bold">Token有效</span>
       <span v-else class="navbar-text" style="font-size: 15px; color: rgb(255, 0, 0); font-weight: bold">Token無效</span>
-      <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1">
+      <button class="navbar-toggler" @click="toggleNav()">
         <span class="visually-hidden">Toggle navigation</span>
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse text-center" id="navcol-1">
+      <div class="collapse navbar-collapse text-center" id="navcol-1" ref="navCollapse">
         <ul class="navbar-nav mx-auto"></ul>
         <div class="container">
           <div class="row navbar-links">
@@ -21,7 +31,7 @@
                 v-if="user.isTokenValid"
                 role="button"
                 style="font-size: 22px; color: rgb(255, 255, 255); font-weight: bold"
-                @click="router.push({ name: 'DiscordServer' })"
+                @click="switchRouter('DiscordServer')"
                 >伺服器</a
               >
             </div>
@@ -30,14 +40,12 @@
                 v-if="user.isTokenValid"
                 role="button"
                 style="font-size: 22px; color: rgb(255, 255, 255); font-weight: bold"
-                @click="router.push({ name: 'User' })"
+                @click="switchRouter('User')"
                 >已監聽頻道</a
               >
             </div>
             <div class="col-md-3">
-              <a role="button" style="font-size: 22px; color: rgb(255, 255, 255); font-weight: bold" @click="router.push({ name: 'User' })"
-                >帳號設定</a
-              >
+              <a role="button" style="font-size: 22px; color: rgb(255, 255, 255); font-weight: bold" @click="switchRouter('User')">帳號設定</a>
             </div>
             <div class="col-md-3"><a role="button" style="font-size: 22px; color: rgb(255, 0, 0); font-weight: bold" @click="logout">登出</a></div>
           </div>
@@ -49,28 +57,41 @@
 <script setup lang="ts">
 import router from '@/router'
 import Cookies from 'js-cookie'
-import * as jwtDecode from 'jwt-decode'
-import { ref, type Ref } from 'vue'
-import { UserStore } from './User'
+import { ref, type Ref, onMounted } from 'vue'
+import { UserStore, JwtStore } from './User'
+import Collapse from 'bootstrap/js/dist/collapse'
 
-const { user, setUser } = UserStore()
-const iconUrl: Ref<string> = ref('')
+const { user, iconUrl, reloadUser } = UserStore()
+const { jwt, reloadJwt } = JwtStore()
+const navCollapse: Ref<HTMLDivElement | null> = ref(null)
 
-const token = Cookies.get('jwt')
-if (!token) {
-  window.location.href = '/login'
-} else {
-  setUser(jwtDecode.jwtDecode(token))
-  if (user.value.discordUserData) {
-    iconUrl.value = `https://cdn.discordapp.com/avatars/${user.value.discordUserData.id}/${user.value.discordUserData.avatar}.png`
-  } else {
-    iconUrl.value = `https://i.imgur.com/Yow9X0v.jpeg`
+onMounted(() => {
+  reloadJwt()
+  if (!jwt.value && window.location.pathname !== '/login') {
+    window.location.href = '/login'
+  } else if (jwt.value) {
+    reloadUser()
   }
-}
+})
 
 function logout() {
   Cookies.remove('jwt')
   location.reload()
+}
+
+function switchRouter(routerName: string) {
+  router.push({ name: routerName })
+  if (navCollapse.value) {
+    const collapse = new Collapse(navCollapse.value)
+    collapse.hide()
+  }
+}
+
+function toggleNav() {
+  if (navCollapse.value) {
+    const collapse = new Collapse(navCollapse.value)
+    collapse.toggle()
+  }
 }
 </script>
 
