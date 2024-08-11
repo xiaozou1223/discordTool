@@ -12,7 +12,7 @@
         <div class="modal-header">
           <ul class="nav">
             <li class="nav-item">
-              <a @click="switchPage(Page.info)" class="nav-link" style="font-weight: bold; font-size: 18px; color: white">詳細資訊</a>
+              <a @click="switchPage(Page.info)" class="nav-link clickable-item" style="font-weight: bold; font-size: 18px; color: white">詳細資訊</a>
             </li>
             <li class="nav-item">
               <a
@@ -20,7 +20,7 @@
                   channel.type === 0 && hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)
                 "
                 @click="switchPage(Page.script)"
-                class="nav-link"
+                class="nav-link clickable-item"
                 style="font-weight: bold; font-size: 18px; color: white"
                 >批量刪除</a
               >
@@ -31,7 +31,7 @@
                   channel.type === 0 && hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)
                 "
                 @click="switchPage(Page.listening)"
-                class="nav-link"
+                class="nav-link clickable-item"
                 style="font-weight: bold; font-size: 18px; color: white"
                 >監聽</a
               >
@@ -119,26 +119,5 @@ function switchPage(goPage: Page) {
 <style>
 .modal.show {
   display: block;
-}
-
-.nav-link {
-  color: white !important;
-  font-weight: bold;
-}
-
-.nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-}
-
-.nav-link:active {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-a {
-  user-select: none; /* For modern browsers */
-  -webkit-user-select: none; /* For Safari */
-  -moz-user-select: none; /* For Firefox */
-  -ms-user-select: none; /* For Internet Explorer/Edge */
 }
 </style>

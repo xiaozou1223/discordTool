@@ -20,14 +20,14 @@
       <div class="collapse navbar-collapse text-center" id="navcol">
         <ul class="navbar-nav mx-auto"></ul>
         <div class="container">
-          <div class="row navbar-links">
+          <div class="row">
             <div class="col-md-3">
               <a
                 v-if="user.isTokenValid"
+                class="nav-link page-link clickable-item"
                 role="button"
-                style="font-size: 22px; color: rgb(255, 255, 255); font-weight: bold"
-                data-bs-toggle="collapse"
-                data-bs-target="#navcol"
+                :data-bs-toggle="isPhoneWidth ? 'collapse' : null"
+                :data-bs-target="isPhoneWidth ? '#navcol' : null"
                 @click="switchRouter('DiscordServer')"
                 >伺服器</a
               >
@@ -35,10 +35,10 @@
             <div class="col-md-3">
               <a
                 v-if="user.isTokenValid"
+                class="nav-link page-link clickable-item"
                 role="button"
-                style="font-size: 22px; color: rgb(255, 255, 255); font-weight: bold"
-                data-bs-toggle="collapse"
-                data-bs-target="#navcol"
+                :data-bs-toggle="isPhoneWidth ? 'collapse' : null"
+                :data-bs-target="isPhoneWidth ? '#navcol' : null"
                 @click="switchRouter('User')"
                 >已監聽頻道</a
               >
@@ -46,14 +46,16 @@
             <div class="col-md-3">
               <a
                 role="button"
-                style="font-size: 22px; color: rgb(255, 255, 255); font-weight: bold"
-                data-bs-toggle="collapse"
-                data-bs-target="#navcol"
+                class="nav-link page-link clickable-item"
+                :data-bs-toggle="isPhoneWidth ? 'collapse' : null"
+                :data-bs-target="isPhoneWidth ? '#navcol' : null"
                 @click="switchRouter('User')"
                 >帳號設定</a
               >
             </div>
-            <div class="col-md-3"><a role="button" style="font-size: 22px; color: rgb(255, 0, 0); font-weight: bold" @click="logout">登出</a></div>
+            <div class="col-md-3">
+              <a role="button" class="nav-link logout-link clickable-item" @click="logout">登出</a>
+            </div>
           </div>
         </div>
       </div>
@@ -63,15 +65,24 @@
 <script setup lang="ts">
 import router from '@/router'
 import Cookies from 'js-cookie'
-import { onMounted, ref, type Ref } from 'vue'
+import { onMounted, onUnmounted, ref, type Ref } from 'vue'
 import { UserStore, JwtStore, checkLoginStatus } from './User'
 
 const { user, iconUrl, reloadUser } = UserStore()
 const { jwt, reloadJwt } = JwtStore()
+const isPhoneWidth = ref(window.innerWidth < 768)
+
+const handleResize = () => {
+  isPhoneWidth.value = window.innerWidth < 768
+}
 
 onMounted(() => {
+  window.addEventListener('resize', handleResize)
   reloadJwt()
   checkLoginStatus()
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 })
 
 function logout() {
@@ -88,24 +99,14 @@ function switchRouter(routerName: string) {
 </script>
 
 <style scoped>
-span {
-  user-select: none; /* For modern browsers */
-  -webkit-user-select: none; /* For Safari */
-  -moz-user-select: none; /* For Firefox */
-  -ms-user-select: none; /* For Internet Explorer/Edge */
+.page-link {
+  font-size: 22px;
+  color: white;
+  font-weight: bold;
 }
-
-.navbar-links a:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.navbar-links a:active {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-@media (max-width: 991.98px) {
-  .navbar-links a {
-    display: block;
-    margin-top: 10px;
-  }
+.logout-link {
+  font-size: 22px;
+  color: red;
+  font-weight: bold;
 }
 </style>

@@ -41,3 +41,21 @@ import Nav from './components/AppNav.vue'
   height: 50px;
 }
 </style>
+
+<style>
+.clickable-item:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  cursor: pointer;
+}
+
+.clickable-item:active {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.clickable-item {
+  user-select: none; /* For modern browsers */
+  -webkit-user-select: none; /* For Safari */
+  -moz-user-select: none; /* For Firefox */
+  -ms-user-select: none; /* For Internet Explorer/Edge */
+}
+</style>

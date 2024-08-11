@@ -9,7 +9,7 @@
       </div>
       <div v-else v-for="guild of filteredGuilds" :key="guild.id">
         <div
-          class="row guild-row"
+          class="row clickable-item"
           style="margin-right: 0px; margin-left: 0px; margin-top: 10px"
           data-bs-toggle="collapse"
           :data-bs-target="`#collapse-${guild.id}`"
@@ -85,28 +85,6 @@ function handleShow(guildId: string) {
 </script>
 
 <style>
-.guild-row:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-}
-
-.guild-row:active {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-span {
-  user-select: none; /* For modern browsers */
-  -webkit-user-select: none; /* For Safari */
-  -moz-user-select: none; /* For Firefox */
-  -ms-user-select: none; /* For Internet Explorer/Edge */
-}
-
-@media (max-width: 991.98px) {
-  .guild-row {
-    display: block;
-    margin-top: 10px;
-  }
-}
 .sticky-search {
   position: fixed;
   left: 50%;

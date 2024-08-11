@@ -4,7 +4,7 @@
     <h3 v-if="channels.length === 0">載入中...</h3>
     <div v-else v-for="parentChannel of parentChannels" :key="parentChannel.id">
       <div
-        class="row channel-row"
+        class="row clickable-item"
         style="margin-right: 0px; margin-left: 0px; margin-top: 10px"
         :data-bs-toggle="parentChannel.type === 4 ? 'collapse' : null"
         :data-bs-target="parentChannel.type === 4 ? `#collapse-${parentChannel.id}` : null"
@@ -33,7 +33,7 @@
         <div v-if="visibleChildChannels.includes(parentChannel.id)">
           <div
             v-for="childChannel of getChildChannels(parentChannel.id)"
-            class="channel-row row"
+            class="row clickable-item"
             @click="
               childChannel.type !== 4 ? openModal(childChannel, calcUserOwnChannelPermissions(guild!, childChannel, userGuildMemberInfo!)) : null
             "
@@ -178,21 +178,3 @@ function getChildChannels(channelId: string) {
     })
 }
 </script>
-
-<style>
-.channel-row:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-}
-
-.channel-row:active {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-@media (max-width: 991.98px) {
-  .channel-row {
-    display: block;
-    margin-top: 10px;
-  }
-}
-</style>
