@@ -1,6 +1,6 @@
-import apiClient from '../index';
-import { ApiResponse } from '../../common.class';
-import { CreateUserDto } from './dto/create-user.dto';
+import apiClient from '../index'
+import { ApiResponse } from '../../common.class'
+import { CreateUserDto } from './dto/create-user.dto'
 import type { ReadUserResponseDto } from './dto/read-user.dto'
 import type { AxiosError, AxiosResponse } from 'axios'
 import axios from 'axios'
@@ -25,12 +25,11 @@ export async function registerApi(userdata: CreateUserDto) {
   }
 }
 
-export async function updateUseApi(account: string, userdata: UpdateUserDto) {
+export async function updateUseApi(userdata: UpdateUserDto) {
   try {
-    const response: AxiosResponse = await apiClient.patch(`/user/${account}`, userdata)
+    const response: AxiosResponse = await apiClient.patch(`/user`, userdata)
     return response.data
   } catch (err: any) {
     throw (err.response as AxiosResponse).data
   }
 }
-

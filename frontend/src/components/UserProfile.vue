@@ -11,7 +11,7 @@
           <span style="font-size: 28px">DiscordToken</span>
           <input v-model="updateData.discordToken" type="text" style="margin-left: 20px" />
         </div>
-        <div style="margin-top: 30px"><button class="btn btn-primary" type="button" @click="update(user.account)">保存</button></div>
+        <div style="margin-top: 30px"><button class="btn btn-primary" type="button" @click="update()">保存</button></div>
       </div>
     </div>
   </section>
@@ -28,11 +28,11 @@ const { user } = UserStore()
 const updateData: Ref<UpdateUserDto> = ref(new UpdateUserDto())
 const confirmPassword = ref('')
 
-async function update(account: string) {
+async function update() {
   if (updateData.value.password && confirmPassword.value !== updateData.value.password) {
     return alert('二次密碼不相同')
   }
-  await updateUseApi(account, updateData.value)
+  await updateUseApi(updateData.value)
     .then((res: any) => {
       const result: ApiResponse<ReadUserResponseDto> = res
       alert(result.message)

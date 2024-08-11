@@ -22,15 +22,17 @@ export class UserController {
     return res.status(result.statusCode).send(result);
   }
 
-  @Get(':account')
-  async findOne(@Param('account') account: string, @Res() res: Response) {
-    const result: ApiResponse<ReadUserResponseDto> = await this.userService.findOneByAccount(account);
+  @Get()
+  async findOne(@Req() req: Request, @Res() res: Response) {
+    const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
+    const result: ApiResponse<ReadUserResponseDto> = await this.userService.findOneByAccount(user.account);
     return res.status(result.statusCode).send(result);
   }
 
-  @Patch(':account')
-  async update(@Param('account') account: string, @Body() updateUserDto: UpdateUserDto, @Res() res: Response) {
-    const result: ApiResponse<ReadUserResponseDto> = await this.userService.update(account, updateUserDto, res);
+  @Patch()
+  async update(@Req() req: Request, @Body() updateUserDto: UpdateUserDto, @Res() res: Response) {
+    const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
+    const result: ApiResponse<ReadUserResponseDto> = await this.userService.update(user.account, updateUserDto, res);
     const jwtResult = await this.authService.login(result.data as ReadUserResponseDto);
     res.cookie('jwt', jwtResult.accessToken, { httpOnly: false, path: '/', secure: false });
     return res.status(result.statusCode).send(result);
