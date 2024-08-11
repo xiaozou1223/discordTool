@@ -11,7 +11,9 @@
           <span style="font-size: 28px">DiscordToken</span>
           <input v-model="updateData.discordToken" type="text" style="margin-left: 20px" />
         </div>
-        <div style="margin-top: 30px"><button class="btn btn-primary" type="button" @click="update()">保存</button></div>
+        <div style="margin-top: 30px">
+          <button class="btn btn-primary" type="button" @click="update()" :disabled="!updateData.discordToken && !updateData.password">保存</button>
+        </div>
       </div>
     </div>
   </section>
