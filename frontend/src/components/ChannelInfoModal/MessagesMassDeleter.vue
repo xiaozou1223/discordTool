@@ -47,7 +47,7 @@
     </div>
     <div class="collapse" id="filter" style="background-color: #3c3c3c">
       <div>
-        <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
+        <div class="row">
           <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
             <span>關鍵字</span>
           </div>
