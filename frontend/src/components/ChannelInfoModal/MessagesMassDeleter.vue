@@ -45,18 +45,16 @@
         <span style="color: white">{{ isFilterCollapse ? '▶' : '▼' }} 篩選 {{ isFilterCollapse ? '◀' : '▼' }}</span>
       </div>
     </div>
-    <div class="collapse" id="filter" style="background-color: #3c3c3c">
+    <div class="collapse" id="filter" style="background-color: #3c3c3c; padding-top: 10px; padding-bottom: 10px">
       <div>
-        <div class="row">
+        <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
           <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
             <span>關鍵字</span>
           </div>
           <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-            <input style="width: 90%; text-align: center" type="text" v-model="keyword" />
+            <input type="text" v-model="keyword" style="width: 90%; text-align: center" />
           </div>
         </div>
-      </div>
-      <div>
         <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
           <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
             <span>起始日</span>
