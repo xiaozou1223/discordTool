@@ -14,7 +14,7 @@
             : openModal(parentChannel, calcUserOwnChannelPermissions(guild!, parentChannel, userGuildMemberInfo!))
         "
       >
-        <div class="col-4" style="text-align: center">
+        <div class="col-2 col-lg-4" style="text-align: center">
           <span></span>
         </div>
         <div class="col" :id="parentChannel.id" style="text-align: left; padding-top: 11px; padding-bottom: 11px">
@@ -39,7 +39,7 @@
             "
             :key="childChannel.id"
           >
-            <div class="col-5" style="text-align: center">
+            <div class="col-3" style="text-align: center">
               <span></span>
             </div>
             <div class="col" :id="childChannel.id" style="text-align: left; padding-top: 11px; padding-bottom: 11px">

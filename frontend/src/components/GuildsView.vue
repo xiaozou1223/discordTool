@@ -15,15 +15,16 @@
           :data-bs-target="`#collapse-${guild.id}`"
           @click="handleShow(guild.id)"
         >
-          <div v-if="guild.icon" class="col-4" style="text-align: center">
-            <img class="rounded-circle" width="50px" height="50px" :src="`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`" />
-          </div>
-          <div v-else class="col-4" style="text-align: center">
+          <div class="col-2 col-lg-4" style="text-align: center">
             <img
               class="rounded-circle"
               width="50px"
               height="50px"
-              :src="`https://www.pngkit.com/png/full/816-8165219_discord-logo-png-discord-icon.png`"
+              :src="
+                guild.icon
+                  ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
+                  : `https://www.pngkit.com/png/full/816-8165219_discord-logo-png-discord-icon.png`
+              "
             />
           </div>
           <div class="col" style="text-align: left; padding-top: 11px; padding-bottom: 11px">
