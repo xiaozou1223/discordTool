@@ -20,6 +20,10 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'public/assets'),
       serveRoot: '/assets',
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      exclude: ['/assets/*'],
+    }),
     UserModule,
     GuildModule,
     AuthModule,
