@@ -42,13 +42,13 @@
       @click="isFilterCollapse = !isFilterCollapse"
     >
       <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bold">
-        <span style="color: white">{{ isFilterCollapse ? '▶' : '▼' }} 訊息篩選 {{ isFilterCollapse ? '◀' : '▼' }}</span>
+        <span style="color: white">{{ isFilterCollapse ? '▶' : '▼' }} 篩選 {{ isFilterCollapse ? '◀' : '▼' }}</span>
       </div>
     </div>
     <div class="collapse" id="filter" style="background-color: #3c3c3c">
       <div class="container">
         <div class="row">
-          <div class="col" style="text-align: left">
+          <div class="col" style="text-align: center">
             <button
               v-for="option of options"
               :key="option.key"
@@ -102,7 +102,7 @@ const options = ref<ButtonOption[]>([
   { label: '📁檔案', key: 'file', value: false },
   { label: '🎥影片', key: 'video', value: false },
   { label: '🖼️圖片', key: 'image', value: false },
-  { label: '♫ 音檔', key: 'sound', value: false },
+  { label: '🔊音檔', key: 'sound', value: false },
   { label: '😀貼圖', key: 'sticker', value: false },
 ])
 
@@ -156,8 +156,11 @@ function removeHover(event: Event) {
 </script>
 <style>
 .selection-button {
+  max-width: 22%;
+  min-width: 76px;
+  width: 22%;
   display: inline-block;
-  padding: 10px 20px;
+  padding: 10px 10px;
   margin: 3px;
   border-radius: 8px;
   background-color: #7a5d8d;
