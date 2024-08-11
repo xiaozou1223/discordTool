@@ -39,7 +39,7 @@
             "
             :key="childChannel.id"
           >
-            <div class="col-3" style="text-align: center">
+            <div class="col-3 col-lg-5" style="text-align: center">
               <span></span>
             </div>
             <div class="col" :id="childChannel.id" style="text-align: left; padding-top: 11px; padding-bottom: 11px">
