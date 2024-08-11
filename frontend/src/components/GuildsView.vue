@@ -40,10 +40,11 @@
 
 <script setup lang="ts">
 import Channel from './ChannelRow.vue'
-import { getGuildsApi } from '@/api/user/user'
-import { ReadGuildsResponseDto } from '@/api/user/dto/read-user.dto'
-import { computed, ref, watch, type Ref } from 'vue'
-import { UserStore } from './User'
+import { getGuildsApi } from '@/api/guild/guild'
+import { ReadGuildsResponseDto } from '@/api/guild/dto/read-guilds'
+import { computed, onMounted, ref, watch, type Ref } from 'vue'
+import { checkLoginStatus, JwtStore, UserStore } from './User'
+const { reloadJwt } = JwtStore()
 
 const { user } = UserStore()
 const guilds: Ref<ReadGuildsResponseDto[]> = ref([])
@@ -58,7 +59,7 @@ const filteredGuilds = computed(() => {
 async function getGuilds() {
   console.log('getGuilds!')
   isLoading.value = true
-  guilds.value = (await getGuildsApi(user.value.account)).data as ReadGuildsResponseDto[]
+  guilds.value = (await getGuildsApi()).data as ReadGuildsResponseDto[]
   isLoading.value = false
 }
 

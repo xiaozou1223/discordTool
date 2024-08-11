@@ -57,8 +57,8 @@
 <script setup lang="ts">
 import router from '@/router'
 import Cookies from 'js-cookie'
-import { ref, type Ref, onMounted } from 'vue'
-import { UserStore, JwtStore } from './User'
+import { onMounted, ref, type Ref } from 'vue'
+import { UserStore, JwtStore, checkLoginStatus } from './User'
 import Collapse from 'bootstrap/js/dist/collapse'
 
 const { user, iconUrl, reloadUser } = UserStore()
@@ -67,15 +67,14 @@ const navCollapse: Ref<HTMLDivElement | null> = ref(null)
 
 onMounted(() => {
   reloadJwt()
-  if (!jwt.value && window.location.pathname !== '/login') {
-    window.location.href = '/login'
-  } else if (jwt.value) {
-    reloadUser()
-  }
+  checkLoginStatus()
 })
 
 function logout() {
+  console.log('Logout!')
   Cookies.remove('jwt')
+  reloadJwt()
+  reloadUser()
   location.reload()
 }
 

@@ -19,20 +19,14 @@
 <script setup lang="ts">
 import { updateUseApi } from '@/api/user/user'
 import { ReadUserResponseDto } from '@/api/user/dto/read-user.dto'
-import Cookies from 'js-cookie'
-import * as jwtDecode from 'jwt-decode'
-import { ref, type Ref } from 'vue'
+import { onMounted, ref, type Ref } from 'vue'
 import type { ApiResponse } from '@/common.class'
 import { UpdateUserDto } from '@/api/user/dto/update-user.dto'
+import { UserStore } from './User'
+const { user } = UserStore()
 
-const token = Cookies.get('jwt')
-const user: Ref<ReadUserResponseDto> = ref(new ReadUserResponseDto())
 const updateData: Ref<UpdateUserDto> = ref(new UpdateUserDto())
 const confirmPassword = ref('')
-
-if (token) {
-  user.value = jwtDecode.jwtDecode(token)
-}
 
 async function update(account: string) {
   if (updateData.value.password && confirmPassword.value !== updateData.value.password) {
