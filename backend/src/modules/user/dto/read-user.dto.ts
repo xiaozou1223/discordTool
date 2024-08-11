@@ -8,10 +8,3 @@ export class ReadUserResponseDto implements ReadUserType {
   isTokenValid: boolean;
   discordUserId?: string;
 }
-
-export class ReadGuildsResponseDto {
-  id: string;
-  name: string;
-  icon: string;
-  owner: boolean;
-}

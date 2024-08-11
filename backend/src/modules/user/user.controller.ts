@@ -2,12 +2,13 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Req } from '@ne
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { ApiResponse } from '../../common.class';
 import { User } from './entities/user.entity';
-import { ReadGuildsResponseDto, ReadUserResponseDto } from './dto/read-user.dto';
+import { ReadUserResponseDto } from './dto/read-user.dto';
 import { DeleteResult } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
+import * as jwtDecode from 'jwt-decode';
 @Controller('/api/user')
 export class UserController {
   constructor(
@@ -38,12 +39,6 @@ export class UserController {
   @Delete(':account')
   async remove(@Param('account') account: string, @Res() res: Response) {
     const result: ApiResponse<DeleteResult> = await this.userService.remove(account);
-    return res.status(result.statusCode).send(result);
-  }
-
-  @Get(':account/guilds')
-  async getGuilds(@Param('account') account: string, @Res() res: Response) {
-    const result: ApiResponse<ReadGuildsResponseDto> = await this.userService.getGuilds(account);
     return res.status(result.statusCode).send(result);
   }
 }

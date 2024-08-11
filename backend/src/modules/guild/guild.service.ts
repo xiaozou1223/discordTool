@@ -3,9 +3,22 @@ import { APIGuild, APIGuildChannel, APIGuildMember, APIMessage, APIRole, APIUser
 import { DiscordApi } from 'src/discord.api';
 import { DiscordChannel } from './dto/read-channel';
 import { ApiResponse } from 'src/common.class';
+import { ReadGuildsResponseDto } from './dto/read-guilds';
 
 @Injectable()
 export class GuildService {
+  async getGuilds(token: string) {
+    const response = new ApiResponse<ReadGuildsResponseDto>();
+    const discordResult = await DiscordApi.getUserGuilds(token);
+    const { data, ...result } = discordResult;
+    const guildsData: ReadGuildsResponseDto[] = (data as APIGuild[]).map((item) => {
+      return { id: item.id, icon: item.icon, name: item.name, owner: item.owner };
+    });
+    response.set(result);
+    response.set({ data: guildsData });
+    return response;
+  }
+
   async getChannels(token: string, guildId: string) {
     const result = await DiscordApi.getChannels(token, guildId);
     const respone: ApiResponse<DiscordChannel> = new ApiResponse();

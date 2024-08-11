@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { ApiResponse } from '../../common.class';
-import { ReadGuildsResponseDto as ReadGuildsDataResponseDto, ReadUserResponseDto } from './dto/read-user.dto';
+import { ReadUserResponseDto } from './dto/read-user.dto';
 import { DiscordApi } from 'src/discord.api';
 import { APIGuild, APIUser } from 'discord-api-types/v10';
 import * as crypto from 'crypto';
@@ -133,27 +133,6 @@ export class UserService {
     return response;
   }
 
-  async getGuilds(account: string) {
-    const response = new ApiResponse<ReadGuildsDataResponseDto>();
-    const isExist = await this.userRepository.existsBy({ account });
-    if (!isExist) {
-      response.set(RESPONSE_MESSAGES.ACCOUNT_NOT_FOUND);
-      return response;
-    }
-    const token = await this.getToken(account);
-    if (!token) {
-      response.set(RESPONSE_MESSAGES.TOKEN_INVALID);
-      return response;
-    }
-    const discordResult = await DiscordApi.getUserGuilds(token);
-    const guildsData: ReadGuildsDataResponseDto[] = (discordResult.data as APIGuild[]).map((item) => {
-      return { id: item.id, icon: item.icon, name: item.name, owner: item.owner };
-    });
-    response.set({ data: guildsData });
-    response.set(RESPONSE_MESSAGES.ACCOUNT_FOUND);
-    return response;
-  }
-
   async getToken(account: string): Promise<string> {
     const isExist = await this.userRepository.existsBy({ account });
     if (!isExist) {
@@ -174,7 +153,6 @@ export class UserService {
     const data = await this.userRepository.findOne({ where: { account }, select: ['passwordHash'] });
     return data.passwordHash;
   }
-
 }
 
 function encrypt(text: string): string {

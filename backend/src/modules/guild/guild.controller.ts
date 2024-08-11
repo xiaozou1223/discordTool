@@ -7,6 +7,7 @@ import * as jwtDecode from 'jwt-decode';
 import { ApiResponse } from 'src/common.class';
 import { APIGuildMember, APIMessage, APIUser } from 'discord-api-types/v10';
 import { channel } from 'process';
+import { ReadGuildsResponseDto } from './dto/read-guilds';
 
 @Controller('/api/guild')
 export class GuildController {
@@ -15,8 +16,16 @@ export class GuildController {
     private readonly userService: UserService,
   ) {}
 
+  @Get('/')
+  async getGuilds(@Req() req: Request, @Res() res: Response) {
+    const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
+    const token = await this.userService.getToken(user.account);
+    const result: ApiResponse<ReadGuildsResponseDto> = await this.guildService.getGuilds(token);
+    return res.status(result.statusCode).send(result);
+  }
+
   @Get(':guildId/channels')
-  async getGuilds(@Param('guildId') guildId: string, @Req() req: Request, @Res() res: Response) {
+  async getChannels(@Param('guildId') guildId: string, @Req() req: Request, @Res() res: Response) {
     const user = jwtDecode.jwtDecode(req.cookies['jwt']) as ReadUserResponseDto;
     const token = await this.userService.getToken(user.account);
     const result = await this.guildService.getChannels(token, guildId);
