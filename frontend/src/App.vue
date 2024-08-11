@@ -43,9 +43,11 @@ import Nav from './components/AppNav.vue'
 </style>
 
 <style>
-.clickable-item:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  cursor: pointer;
+@media (hover: hover) {
+  .clickable-item:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    cursor: pointer;
+  }
 }
 
 .clickable-item:active {

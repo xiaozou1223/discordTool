@@ -19,19 +19,36 @@
   </div>
   <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
     <div class="col" style="text-align: center">
-      <span class="selectable-text" style="font-weight: bold; font-size: 18px" :style="{ color: hasViewPermission ? '#00EC00' : '#FF2D2D' }">{{
-        channel.name
-      }}</span>
+      <span
+        class="selectable-text"
+        style="font-weight: bold; font-size: 18px"
+        :style="{ color: getChannelNameColor(hasViewPermission, hasChannelManagePermission) }"
+        >{{ channel.name }}</span
+      >
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import type { DiscordChannel } from '@/api/guild/dto/read-channel';
-import type { APIGuild } from 'discord-api-types/v10';
+import type { DiscordChannel } from '@/api/guild/dto/read-channel'
+import type { APIGuild } from 'discord-api-types/v10'
+
+function getChannelNameColor(hasViewPermission: boolean, hasChannelManagePermission: boolean) {
+  if (hasChannelManagePermission) {
+    console.log('#00bfff')
+    return '#00bfff'
+  } else if (hasViewPermission) {
+    console.log('white')
+    return 'white'
+  } else {
+    console.log('red')
+    return 'red'
+  }
+}
 
 defineProps<{
   guild: APIGuild
   channel: DiscordChannel
   hasViewPermission: boolean
+  hasChannelManagePermission: boolean
 }>()
 </script>

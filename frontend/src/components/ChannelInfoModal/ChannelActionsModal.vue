@@ -12,16 +12,23 @@
         <div class="modal-header">
           <ul class="nav">
             <li class="nav-item">
-              <a @click="switchPage(Page.info)" class="nav-link clickable-item" style="font-weight: bold; font-size: 18px; color: white">詳細資訊</a>
+              <a
+                @click="switchPage(Page.info)"
+                class="nav-link clickable-item"
+                style="font-weight: bold; font-size: 18px"
+                :style="{ color: page === Page.info ? '#00bfff' : '#cccccc' }"
+                >詳細資訊</a
+              >
             </li>
             <li class="nav-item">
               <a
                 v-if="
                   channel.type === 0 && hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)
                 "
-                @click="switchPage(Page.script)"
+                @click="switchPage(Page.massDeleter)"
                 class="nav-link clickable-item"
-                style="font-weight: bold; font-size: 18px; color: white"
+                style="font-weight: bold; font-size: 18px"
+                :style="{ color: page === Page.massDeleter ? '#00bfff' : '#cccccc' }"
                 >批量刪除</a
               >
             </li>
@@ -32,7 +39,8 @@
                 "
                 @click="switchPage(Page.listening)"
                 class="nav-link clickable-item"
-                style="font-weight: bold; font-size: 18px; color: white"
+                style="font-weight: bold; font-size: 18px"
+                :style="{ color: page === Page.listening ? '#00bfff' : '#cccccc' }"
                 >監聽</a
               >
             </li>
@@ -46,13 +54,16 @@
               :key="channel.id"
               :guild="guild"
               :has-view-permission="hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)"
+              :has-channel-manage-permission="
+                hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ManageChannels)
+              "
               :channel="channel"
               :user-guild-member-info="userGuildMemberInfo"
             />
           </keep-alive>
           <keep-alive>
             <MessagesMassDeleter
-              v-if="page === Page.script"
+              v-if="page === Page.massDeleter"
               :key="channel.id"
               :channel="channel"
               :guild="guild"
@@ -84,7 +95,7 @@ import { UserStore } from '../User'
 enum Page {
   none,
   info,
-  script,
+  massDeleter,
   listening,
 }
 

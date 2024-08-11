@@ -1,7 +1,7 @@
 <!-- eslint-disable max-len -->
 <template>
   <div class="container" style="text-align: center; background: #322e2e; padding-top: 10px">
-    <InfoTitle :channel="channel" :guild="guild" :has-view-permission="hasViewPermission" />
+    <InfoTitle :channel="channel" :guild="guild" :has-view-permission="hasViewPermission" :has-channel-manage-permission="hasChannelManagePermission" />
     <hr />
     <div class="row" style="margin-right: 0px; margin-left: 0px">
       <div class="col" style="text-align: center">
@@ -9,7 +9,7 @@
       </div>
     </div>
     <hr />
-    <RoleSpanDiv :font-color="'#007BFF'" :roles="managerRoles" :is-manager="true" :has-view-permission="true" />
+    <RoleSpanDiv :font-color="'#00bfff'" :roles="managerRoles" :is-manager="true" :has-view-permission="true" />
     <RoleSpanDiv :font-color="'white'" :roles="allowRoles" :is-manager="false" :has-view-permission="true" />
     <RoleSpanDiv :font-color="'red'" :roles="denyRoles" :is-manager="false" :has-view-permission="false" />
     <hr />
@@ -45,6 +45,7 @@ const props = defineProps<{
   guild: APIGuild
   channel: DiscordChannel
   hasViewPermission: boolean
+  hasChannelManagePermission: boolean
   userGuildMemberInfo: APIGuildMember
 }>()
 

@@ -1,16 +1,13 @@
 <!-- eslint-disable max-len -->
 <template>
   <div v-if="hasViewPermission" class="container" style="text-align: center; background: #322e2e; padding-top: 10px">
-    <InfoTitle :channel="channel" :guild="guild" :has-view-permission="hasViewPermission" />
+    <InfoTitle
+      :channel="channel"
+      :guild="guild"
+      :has-view-permission="hasViewPermission"
+      :has-channel-manage-permission="hasChannelManagePermission"
+    />
     <hr />
-    <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
-      <div class="col" style="text-align: center">
-        <span v-if="hasChannelManagePermission" class="selectable-text" style="font-weight: bold; font-size: 18px; color: #00ec00">
-          擁有頻道管理權限(可以刪除他人訊息)
-        </span>
-        <span v-else style="font-weight: bold; font-size: 18px; color: yellow"> 沒有頻道管理權限(只能刪除自己訊息) </span>
-      </div>
-    </div>
     <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
       <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
         <span>發言者</span>
@@ -37,24 +34,33 @@
         />
       </div>
     </div>
-    <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
+    <div
+      class="row clickable-item"
+      style="margin-right: 0px; margin-left: 0px; margin-top: 10px; background-color: #3c3c3c"
+      data-bs-toggle="collapse"
+      data-bs-target="#filter"
+      @click="isFilterCollapse = !isFilterCollapse"
+    >
       <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bold">
-        <span>訊息需要包含</span>
+        <span style="color: white">{{ isFilterCollapse ? '▶' : '▼' }} 訊息篩選 {{ isFilterCollapse ? '◀' : '▼' }}</span>
       </div>
     </div>
-    <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
-      <div class="col" style="padding-top: 5px; padding-bottom: 5px; font-weight: bold">
-        <button
-          v-for="option in options"
-          :key="option.key"
-          @click="toggleOption(option.key)"
-          @touchstart="removeHover"
-          @touchend="removeHover"
-          :class="['btn', option.value ? 'btn-success' : 'btn-outline-info']"
-          class="m-1"
-        >
-          {{ option.label }}
-        </button>
+    <div class="collapse" id="filter" style="background-color: #3c3c3c">
+      <div class="container">
+        <div class="row">
+          <div class="col" style="text-align: left">
+            <button
+              v-for="option of options"
+              :key="option.key"
+              @click="toggleOption(option.key)"
+              @touchstart="removeHover"
+              @touchend="removeHover"
+              :class="['selection-button', option.value ? 'selected' : 'unselected']"
+            >
+              {{ option.label }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -80,6 +86,7 @@ enum MessageAuthorType {
   SpecificUser = 'SpecificUser',
 }
 const selectedMessageAuthorType: Ref<MessageAuthorType> = ref(MessageAuthorType.Self)
+const isFilterCollapse = ref(true)
 const authorOptions: Ref<SelectOption[]> = ref([])
 const authorId: Ref<string> = ref('')
 const props = defineProps<{
@@ -90,13 +97,13 @@ const props = defineProps<{
   hasChannelManagePermission: boolean
 }>()
 const options = ref<ButtonOption[]>([
-  { label: '連結', key: 'link', value: false },
-  { label: '投票', key: 'poll', value: false },
-  { label: '檔案', key: 'file', value: false },
-  { label: '影片', key: 'video', value: false },
-  { label: '圖片', key: 'image', value: false },
-  { label: '音檔', key: 'sound', value: false },
-  { label: '貼圖', key: 'sticker', value: false },
+  { label: '🔗連結', key: 'link', value: false },
+  { label: '📊投票', key: 'poll', value: false },
+  { label: '📁檔案', key: 'file', value: false },
+  { label: '🎥影片', key: 'video', value: false },
+  { label: '🖼️圖片', key: 'image', value: false },
+  { label: '♫ 音檔', key: 'sound', value: false },
+  { label: '😀貼圖', key: 'sticker', value: false },
 ])
 
 watch(
@@ -148,10 +155,43 @@ function removeHover(event: Event) {
 }
 </script>
 <style>
-.selectable-text {
-  user-select: text !important; /* For modern browsers */
-  -webkit-user-select: text !important; /* For Safari */
-  -moz-user-select: text !important; /* For Firefox */
-  -ms-user-select: text !important; /* For Internet Explorer/Edge */
+.selection-button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 3px;
+  border-radius: 8px;
+  background-color: #7a5d8d;
+  color: #d4bbdd;
+  font-size: 16px;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.selection-button.unselected {
+  background-color: transparent;
+  border: 1px solid #d4bbdd;
+  color: #d4bbdd;
+}
+
+.selection-button.selected {
+  background-color: #7a5d8d;
+  color: #ffffff;
+  border: 1px solid #7a5d8d;
+}
+
+@media (any-hover: hover) {
+  .selection-button:hover {
+    background-color: #9a76b3;
+    color: #ffffff;
+  }
+
+  .selection-button.selected:hover {
+    background-color: #9a76b3;
+    border: 1px solid #9a76b3;
+  }
 }
 </style>
