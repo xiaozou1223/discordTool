@@ -1,7 +1,12 @@
 <!-- eslint-disable max-len -->
 <template>
-  <div class="container" style="text-align: center; background: #322e2e; padding-top: 10px">
-    <InfoTitle :channel="channel" :guild="guild" :has-view-permission="hasViewPermission" :has-channel-manage-permission="hasChannelManagePermission" />
+  <div class="container" style="text-align: center; background: #322e2e; padding-top: 10px; padding-bottom: 10px">
+    <InfoTitle
+      :channel="channel"
+      :guild="guild"
+      :has-view-permission="hasViewPermission"
+      :has-channel-manage-permission="hasChannelManagePermission"
+    />
     <hr />
     <div class="row" style="margin-right: 0px; margin-left: 0px">
       <div class="col" style="text-align: center">

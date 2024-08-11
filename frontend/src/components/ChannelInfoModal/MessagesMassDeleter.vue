@@ -1,6 +1,6 @@
 <!-- eslint-disable max-len -->
 <template>
-  <div v-if="hasViewPermission" class="container" style="text-align: center; background: #322e2e; padding-top: 10px">
+  <div v-if="hasViewPermission" class="container" style="text-align: center; background: #322e2e; padding-top: 10px; padding-bottom: 10px">
     <InfoTitle
       :channel="channel"
       :guild="guild"
@@ -46,7 +46,42 @@
       </div>
     </div>
     <div class="collapse" id="filter" style="background-color: #3c3c3c">
-      <div class="container">
+      <div>
+        <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
+          <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+            <span>關鍵字</span>
+          </div>
+          <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+            <input style="width: 90%; text-align: center" type="text" v-model="keyword" />
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
+          <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+            <span>起始日</span>
+          </div>
+          <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+            <input type="date" v-model="startDate" :max="endDate || today" style="width: 90%; text-align: center" onkeydown="return false" />
+          </div>
+        </div>
+        <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
+          <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+            <span>結束日</span>
+          </div>
+          <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+            <input
+              type="date"
+              v-model="endDate"
+              :min="startDate || undefined"
+              :max="today"
+              style="width: 90%; text-align: center"
+              onkeydown="return false"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="container" style="margin-top: 10px">
         <div class="row">
           <div class="col" style="text-align: center">
             <button
@@ -63,12 +98,19 @@
         </div>
       </div>
     </div>
+    <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
+      <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+        <button type="button" class="btn btn-primary">🔍搜尋訊息</button>
+      </div>
+    </div>
   </div>
   <h4 v-else>無權限查看該頻道</h4>
 </template>
+
 <script setup lang="ts">
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
 import type { APIGuild } from 'discord-api-types/v10'
+import moment from 'moment'
 import InfoTitle from './InfoTitle.vue'
 import { onMounted, ref, watch, type Ref } from 'vue'
 interface SelectOption {
@@ -85,10 +127,12 @@ enum MessageAuthorType {
   All = 'All',
   SpecificUser = 'SpecificUser',
 }
+const today: string = moment().format('YYYY-MM-DD')
 const selectedMessageAuthorType: Ref<MessageAuthorType> = ref(MessageAuthorType.Self)
 const isFilterCollapse = ref(true)
 const authorOptions: Ref<SelectOption[]> = ref([])
 const authorId: Ref<string> = ref('')
+const keyword: Ref<string> = ref('')
 const props = defineProps<{
   userId: string
   guild: APIGuild
@@ -105,6 +149,8 @@ const options = ref<ButtonOption[]>([
   { label: '🔊音檔', key: 'sound', value: false },
   { label: '😀貼圖', key: 'sticker', value: false },
 ])
+const startDate = ref<string | null>(null)
+const endDate = ref<string | null>(null)
 
 watch(
   () => props.channel,
@@ -120,6 +166,7 @@ watch(selectedMessageAuthorType, (selectedType) => {
     authorId.value = ''
   }
 })
+
 onMounted(async () => {
   checkPermission()
 })
@@ -154,7 +201,8 @@ function removeHover(event: Event) {
   target.classList.remove('hover')
 }
 </script>
-<style>
+
+<style scoped>
 .selection-button {
   max-width: 22%;
   min-width: 76px;
