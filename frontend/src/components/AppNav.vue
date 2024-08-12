@@ -26,10 +26,11 @@
                 v-if="user.isTokenValid"
                 class="nav-link page-link clickable-item"
                 role="button"
+                :style="{ color: page === Page.DiscordServer ? '#00bfff' : 'white' }"
                 :data-bs-toggle="isPhoneWidth ? 'collapse' : null"
                 :data-bs-target="isPhoneWidth ? '#navcol' : null"
                 @click="switchRouter('DiscordServer')"
-                >伺服器</a
+                >群組</a
               >
             </div>
             <div class="col-md-3">
@@ -37,20 +38,22 @@
                 v-if="user.isTokenValid"
                 class="nav-link page-link clickable-item"
                 role="button"
+                :style="{ color: page === Page.Listening ? '#00bfff' : 'white' }"
                 :data-bs-toggle="isPhoneWidth ? 'collapse' : null"
                 :data-bs-target="isPhoneWidth ? '#navcol' : null"
                 @click="switchRouter('User')"
-                >已監聽頻道</a
+                >監聽</a
               >
             </div>
             <div class="col-md-3">
               <a
                 role="button"
                 class="nav-link page-link clickable-item"
+                :style="{ color: page === Page.User ? '#00bfff' : 'white' }"
                 :data-bs-toggle="isPhoneWidth ? 'collapse' : null"
                 :data-bs-target="isPhoneWidth ? '#navcol' : null"
                 @click="switchRouter('User')"
-                >帳號設定</a
+                >帳號</a
               >
             </div>
             <div class="col-md-3">
@@ -67,12 +70,18 @@ import router from '@/router'
 import Cookies from 'js-cookie'
 import { onMounted, onUnmounted, ref, type Ref } from 'vue'
 import { UserStore, JwtStore, checkLoginStatus } from './User'
+enum Page {
+  DiscordServer = 'DiscordServer',
+  User = 'User',
+  Listening = 'Listening',
+}
 
 const { user, iconUrl, reloadUser } = UserStore()
 const { jwt, reloadJwt } = JwtStore()
 const isPhoneWidth = ref(window.innerWidth < 768)
+const page: Ref<Page> = ref(Page.DiscordServer)
 
-const handleResize = () => {
+function handleResize() {
   isPhoneWidth.value = window.innerWidth < 768
 }
 
@@ -95,6 +104,7 @@ function logout() {
 
 function switchRouter(routerName: string) {
   router.push({ name: routerName })
+  page.value = routerName as Page
 }
 </script>
 
