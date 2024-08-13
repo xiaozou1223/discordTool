@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
-      <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-        <span>發言者</span>
+      <div class="col-1" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+        <span>從</span>
       </div>
       <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
         <select style="width: 90%; text-align: center" v-model="selectedMessageAuthorType">
