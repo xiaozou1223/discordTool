@@ -17,12 +17,17 @@
           <span style="padding: 0px; margin-left: 10px; font-weight: bolder">已搜尋到{{ searchMessageResult.total_results }}則訊息</span>
         </div>
       </div>
-      <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
+      <div
+        class="row clickable-item"
+        style="margin-right: 0px; margin-left: 0px; margin-top: 10px; background-color: #3c3c3c"
+        data-bs-toggle="collapse"
+        data-bs-target="#message-viewer"
+      >
         <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bolder">
           <span style="padding: 0px; margin-left: 10px; font-weight: bolder">訊息預覽(最多顯示25則)</span>
         </div>
       </div>
-      <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
+      <div class="row collapse" id="message-viewer" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
         <div class="container" style="max-height: 300px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ccc" ref="messagesViewer">
           <div class="row" v-for="message of searchMessageResult?.messages">
             <div class="col-2" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
