@@ -23,7 +23,7 @@
               :src="
                 guild.icon
                   ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
-                  : `https://www.pngkit.com/png/full/816-8165219_discord-logo-png-discord-icon.png`
+                  : `/discordIcon.png`
               "
             />
           </div>

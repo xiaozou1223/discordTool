@@ -18,7 +18,7 @@
         :src="
           member.user.avatar
             ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png`
-            : 'https://www.pngkit.com/png/full/816-8165219_discord-logo-png-discord-icon.png'
+            : '/discordIcon.png'
         "
       />
     </div>

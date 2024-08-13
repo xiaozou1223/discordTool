@@ -8,10 +8,9 @@
     <div class="container">
       <a class="navbar-brand d-flex align-items-center">
         <img class="rounded-circle" width="65" height="65" :src="userStore.iconUrl" />
-        <span style="padding: 0px; margin-left: 10px" v-if="userStore.user.discordUserData?.global_name">{{
-          userStore.user.discordUserData?.global_name
+        <span style="padding: 0px; margin-left: 10px">{{
+          userStore.user.discordUserData?.global_name ? userStore.user.discordUserData?.global_name : 'UNKNOW'
         }}</span>
-        <span style="padding: 0px; margin-left: 10px" v-else>UNKNOW</span>
       </a>
       <span v-if="userStore.user.isTokenValid" class="navbar-text" style="font-size: 15px; color: rgb(0, 255, 71); font-weight: bold">Token有效</span>
       <span v-else class="navbar-text" style="font-size: 15px; color: rgb(255, 0, 0); font-weight: bold">Token無效</span>

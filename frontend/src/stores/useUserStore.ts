@@ -8,7 +8,7 @@ import { ref, watch } from 'vue'
 export const useUserStore = defineStore('user', () => {
   const user = ref(new ReadUserResponseDto())
   const jwt = ref<string | null | undefined>(null)
-  const iconUrl = ref('https://i.imgur.com/Yow9X0v.jpeg')
+  const iconUrl = ref('/unknow.jpg')
 
   const checkLoginStatus = () => {
     const currentRouter = window.location.pathname
@@ -31,7 +31,7 @@ export const useUserStore = defineStore('user', () => {
       if (user.value.discordUserData && user.value.discordUserData.avatar) {
         iconUrl.value = `https://cdn.discordapp.com/avatars/${user.value.discordUserData.id}/${user.value.discordUserData.avatar}.png`
       } else {
-        iconUrl.value = 'https://i.imgur.com/Yow9X0v.jpeg'
+        iconUrl.value = '/unknow.jpg'
       }
     } else {
       user.value = new ReadUserResponseDto()

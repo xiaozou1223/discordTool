@@ -9,7 +9,7 @@
           class="rounded-circle"
           width="50px"
           height="50px"
-          :src="`https://www.pngkit.com/png/full/816-8165219_discord-logo-png-discord-icon.png`"
+          :src="`/discordIcon.png`"
         />
       </div>
     </div>
@@ -37,7 +37,6 @@ function getChannelNameColor(hasViewPermission: boolean, hasChannelManagePermiss
     console.log('#00bfff')
     return '#00bfff'
   } else if (hasViewPermission) {
-    console.log('white')
     return 'white'
   } else {
     console.log('red')
