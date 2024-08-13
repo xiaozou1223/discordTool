@@ -8,11 +8,25 @@
       :has-channel-manage-permission="hasChannelManagePermission"
     />
     <hr />
+    <KeepAlive>
+      <MessageFilterSetting
+        v-if="step === Step.setFilter"
+        :userId="userId"
+        :channel="channel"
+        :has-view-permission="hasViewPermission"
+        :has-channel-manage-permission="hasChannelManagePermission"
+        @update-filter-setting="goSearcher"
+      />
+    </KeepAlive>
     <MessageSearcher
-      :userId="userId"
-      :channel="channel"
-      :has-view-permission="hasViewPermission"
-      :has-channel-manage-permission="hasChannelManagePermission"
+      v-if="step === Step.search"
+      :filterSetting="filterSetting!"
+      :guild="guild"
+      @back-to-filter-page="
+        () => {
+          step = Step.setFilter
+        }
+      "
     />
   </div>
   <h4 v-else>無權限查看該頻道</h4>
@@ -21,10 +35,24 @@
 <script setup lang="ts">
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
 import type { APIGuild } from 'discord-api-types/v10'
-import moment from 'moment'
 import InfoTitle from './InfoTitle.vue'
 import { onMounted, ref, watch, type Ref } from 'vue'
+import MessageFilterSetting from './MessageFilterSetting.vue'
 import MessageSearcher from './MessageSearcher.vue'
+
+interface FilterSetting {
+  authorId: string
+  searchQuery: string
+}
+enum Step {
+  setFilter,
+  search,
+  delete,
+}
+
+const filterSetting: Ref<FilterSetting | null> = ref(null)
+const step: Ref<Step> = ref(Step.setFilter)
+
 const props = defineProps<{
   userId: string
   guild: APIGuild
@@ -32,6 +60,11 @@ const props = defineProps<{
   hasViewPermission: boolean
   hasChannelManagePermission: boolean
 }>()
+
+function goSearcher(newFilterSetting: FilterSetting) {
+  filterSetting.value = newFilterSetting
+  step.value = Step.search
+}
 </script>
 
 <style scoped>

@@ -1,257 +1,158 @@
 <template>
   <div>
     <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
+      <div class="col-3" style="text-align: center; padding-top: 28px; padding-bottom: 28px; font-weight: bolder">
+        <span style="padding: 0px; margin-left: 10px; font-weight: bolder">發言者</span>
+      </div>
       <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-        <span>發言者</span>
+        <img class="rounded-circle" width="65px" height="65px" :src="authorIcon" />
       </div>
-      <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-        <select style="width: 90%; text-align: center" v-model="selectedMessageAuthorType">
-          <option v-for="option of authorOptions" :key="option.value" :value="option.value">
-            {{ option.text }}
-          </option>
-        </select>
+      <div class="col" style="text-align: left; padding-top: 28px; padding-bottom: 28px">
+        <span style="padding: 0px; margin-left: 10px; font-weight: bolder">{{ authorName }}</span>
       </div>
     </div>
-    <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
-      <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-        <span>userId</span>
-      </div>
-      <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-        <input
-          style="width: 90%; text-align: center"
-          type="text"
-          :disabled="selectedMessageAuthorType !== MessageAuthorType.SpecificUser"
-          @input="filterUserIdInput"
-          v-model="authorId"
-        />
-      </div>
-    </div>
-    <div
-      class="row clickable-item"
-      style="margin-right: 0px; margin-left: 0px; margin-top: 10px; background-color: #3c3c3c"
-      data-bs-toggle="collapse"
-      data-bs-target="#filter"
-      @click="isFilterCollapse = !isFilterCollapse"
-    >
-      <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bold">
-        <span style="color: white">{{ isFilterCollapse ? '▶' : '▼' }} 篩選 {{ isFilterCollapse ? '◀' : '▼' }}</span>
-      </div>
-    </div>
-    <div class="collapse" id="filter" style="background-color: #3c3c3c; padding-top: 10px; padding-bottom: 10px">
-      <div>
-        <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
-          <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-            <span>關鍵字</span>
-          </div>
-          <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-            <input type="text" v-model="keyword" style="width: 90%; text-align: center" />
-          </div>
-        </div>
-        <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
-          <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-            <span>起始日</span>
-          </div>
-          <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-            <input type="date" v-model="startDate" :max="endDate || today" style="width: 90%; text-align: center" onkeydown="return false" />
-          </div>
-        </div>
-        <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
-          <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-            <span>結束日</span>
-          </div>
-          <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-            <input
-              type="date"
-              v-model="endDate"
-              :min="startDate || undefined"
-              :max="today"
-              style="width: 90%; text-align: center"
-              onkeydown="return false"
-            />
-          </div>
+    <div v-if="searchMessageResult">
+      <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
+        <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bolder">
+          <span style="padding: 0px; margin-left: 10px; font-weight: bolder">已搜尋到{{ searchMessageResult.total_results }}則訊息</span>
         </div>
       </div>
-      <div class="container" style="margin-top: 10px">
-        <div class="row">
-          <div class="col" style="text-align: center">
-            <button
-              v-for="option of options"
-              :key="option.key"
-              @click="toggleOption(option.key)"
-              @touchstart="removeHover"
-              @touchend="removeHover"
-              :class="['selection-button', option.value ? 'selected' : 'unselected']"
-            >
-              {{ option.label }}
-            </button>
+      <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
+        <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bolder">
+          <span style="padding: 0px; margin-left: 10px; font-weight: bolder">訊息預覽(最多顯示25則)</span>
+        </div>
+      </div>
+      <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
+        <div class="container" style="max-height: 300px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ccc" ref="messagesViewer">
+          <div class="row" v-for="message of searchMessageResult?.messages">
+            <div class="col-2" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+              <img class="rounded-circle" width="40px" height="40px" :src="getMessageAuthorIcon(message[0])" />
+            </div>
+            <div class="col" style="text-align: left; padding-top: 5px; padding-bottom: 5px">
+              <div class="row">
+                <span style="padding: 0px; margin-left: 10px; font-weight: bolder">{{ message[0].author.global_name }}</span>
+              </div>
+              <div class="row">
+                <div v-html="parseMessageContent(message[0].content)"></div>
+              </div>
+              <div class="row" v-for="attachment of message[0].attachments">
+                <img v-if="attachment.content_type === 'image/jpeg'" :src="attachment.url" />
+              </div>
+              <div class="row" v-for="sticker_item of message[0].sticker_items">
+                <img :src="getStickerUrl(sticker_item)" :alt="sticker_item.name" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
-      <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-        <button type="button" class="btn btn-primary" @click="search">🔍搜尋訊息</button>
+      <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bolder">
+        <button @click="emit('backToFilterPage')" class="btn btn-primary">返回</button>
+      </div>
+      <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bolder">
+        <button @click="emit('backToFilterPage')" class="btn btn-danger">批量刪除</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, type Ref, watch } from 'vue'
-import moment from 'moment'
-import type { DiscordChannel } from '@/api/guild/dto/read-channel'
+import { useUserStore } from '../../stores/useUserStore'
+import { getMemberByUserIdAndGuildIdApi, searchMessagesApi } from '@/api/guild/guild'
+import type { APISearchMessage } from '@/common.class'
+import type { APIGuild, APIGuildMember, APIMessage, APIMessageComponent } from 'discord-api-types/v10'
+import { ref, type Ref, onMounted, watch, computed } from 'vue'
+interface FilterSetting {
+  authorId: string
+  searchQuery: string
+}
 
-interface SelectOption {
-  value: string
-  text: string
-}
-interface ButtonOption {
-  label: string
-  key: string
-  value: boolean
-}
-enum MessageAuthorType {
-  Self = 'Self',
-  All = 'All',
-  SpecificUser = 'SpecificUser',
-}
-const today: string = moment().format('YYYY-MM-DD')
-const selectedMessageAuthorType: Ref<MessageAuthorType> = ref(MessageAuthorType.Self)
-const isFilterCollapse = ref(true)
-const authorOptions: Ref<SelectOption[]> = ref([])
-const authorId: Ref<string> = ref('')
-const keyword: Ref<string> = ref('')
-const startDate = ref<string | null>(null)
-const endDate = ref<string | null>(null)
-const options = ref<ButtonOption[]>([
-  { label: '🔗連結', key: 'link', value: false },
-  { label: '📊投票', key: 'poll', value: false },
-  { label: '📁檔案', key: 'file', value: false },
-  { label: '🎥影片', key: 'video', value: false },
-  { label: '🖼️圖片', key: 'image', value: false },
-  { label: '🔊音檔', key: 'sound', value: false },
-  { label: '😀貼圖', key: 'sticker', value: false },
-])
+const userStore = useUserStore()
+const authorName = ref('UNKNOW')
+const authorIcon = ref('/unknow.jpg')
+const searchMessageResult: Ref<APISearchMessage | null> = ref(null)
 
-const props = defineProps<{
-  userId: string
-  hasViewPermission: boolean
-  hasChannelManagePermission: boolean
-  channel: DiscordChannel
+const props = defineProps<{ filterSetting: FilterSetting; guild: APIGuild }>()
+const emit = defineEmits<{
+  (e: 'backToFilterPage'): void
 }>()
-
-function filterUserIdInput(event: Event) {
-  const input = event.target as HTMLInputElement
-  input.value = input.value.replace(/[^0-9]/g, '')
-  authorId.value = input.value
-}
-
-function toggleOption(key: string) {
-  const option = options.value.find((opt) => opt.key === key)
-  if (option) {
-    option.value = !option.value
-  }
-}
-
-function removeHover(event: Event) {
-  const target = event.currentTarget as HTMLElement
-  target.classList.remove('hover')
-}
-
-function checkPermission() {
-  authorOptions.value = []
-  if (props.hasViewPermission) {
-    authorOptions.value.push({ value: MessageAuthorType.Self, text: '自己' })
-    selectedMessageAuthorType.value = MessageAuthorType.Self
-    authorId.value = props.userId
-  }
-  if (props.hasChannelManagePermission) {
-    authorOptions.value.push({ value: MessageAuthorType.All, text: '所有人' })
-    authorOptions.value.push({ value: MessageAuthorType.SpecificUser, text: '輸入userId' })
-  }
-}
-
-function search() {
-  console.log(generateSearchQuery())
-}
-
-function generateSearchQuery() {
-  let query = `channel_id=${props.channel.id}`
-  if (authorId.value) {
-    query += `&author_id=${authorId.value}`
-  }
-  if (keyword.value) {
-    query += `&content=${keyword.value}`
-  }
-  options.value.forEach((item) => {
-    if (item.value) {
-      query += `&has=${item.key}`
-    }
-  })
-  return query
-}
-
-watch(selectedMessageAuthorType, (selectedType) => {
-  if (selectedType === MessageAuthorType.Self) {
-    authorId.value = props.userId
-  } else {
-    authorId.value = ''
-  }
-})
-
-watch(
-  () => props.channel,
-  async () => {
-    checkPermission()
-  },
-)
+const messagesViewer = ref<HTMLElement | null>(null)
 
 onMounted(async () => {
-  checkPermission()
+  if (props.filterSetting.authorId) {
+    if (userStore.user.discordUserId! === props.filterSetting.authorId) {
+      authorName.value = userStore.user.discordUserData!.global_name!
+      authorIcon.value = userStore.iconUrl
+    } else {
+      const result = await getMemberByUserIdAndGuildIdApi(props.guild.id, props.filterSetting.authorId)
+      const member = result.data
+      if (member) {
+        authorName.value = member.nick || member.user.global_name || member.user.username
+        authorIcon.value = member.user.avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png` : '/discordIcon.png'
+      } else {
+        authorName.value = 'UNKNOW'
+        authorIcon.value = '/unknow.jpg'
+      }
+    }
+  } else {
+    authorName.value = 'ALL'
+    authorIcon.value = props.guild.icon ? `https://cdn.discordapp.com/icons/${props.guild.id}/${props.guild.icon}.png` : `/discordIcon.png`
+  }
+  console.log(props.filterSetting.searchQuery)
+  const result = await searchMessagesApi(props.guild.id, props.filterSetting.searchQuery)
+  console.log('searchMessage!')
+  if (result.data) {
+    searchMessageResult.value = result.data
+    searchMessageResult.value.messages.reverse()
+    console.log(searchMessageResult.value)
+  }
 })
+
+watch(messagesViewer, () => {
+  if (messagesViewer.value) {
+    messagesViewer.value.scrollTop = messagesViewer.value.scrollHeight
+  }
+})
+
+function parseMessageContent(content: string) {
+  const emojiRegex = /<:[a-zA-Z0-9_]+:[0-9]+>/g
+
+  const formattedContent = content.replace(emojiRegex, (match) => {
+    const [_, emojiName, emojiId] = match.match(/^<:([a-zA-Z0-9_]+):([0-9]+)>$/)!
+    const emojiUrl = `https://cdn.discordapp.com/emojis/${emojiId}.png`
+    return `<img src="${emojiUrl}" alt="${emojiName}" class="emoji">`
+  })
+
+  return formattedContent.replace(/(^|>)([^<]+)(<|$)/g, '$1<span>$2</span>$3')
+}
+
+function getMessageAuthorIcon(message: APIMessage) {
+  if (message.author) {
+    return message.author.avatar ? `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png` : '/discordIcon.png'
+  }
+}
+
+function getStickerUrl(sticker: { id: string; format_type: number; name: string }) {
+  let format = 'png'
+  if (sticker.format_type === 2) {
+    format = 'apng'
+  } else if (sticker.format_type === 3) {
+    format = 'json'
+  }
+  return `https://cdn.discordapp.com/stickers/${sticker.id}.${format}`
+}
 </script>
 
-<style scoped>
-.selection-button {
-  max-width: 22%;
-  min-width: 76px;
-  width: 22%;
-  display: inline-block;
-  padding: 10px 10px;
-  margin: 3px;
-  border-radius: 8px;
-  background-color: #7a5d8d;
-  color: #d4bbdd;
-  font-size: 16px;
-  text-align: center;
-  cursor: pointer;
-  border: none;
-  transition:
-    background-color 0.3s,
-    color 0.3s;
+<style>
+.emoji {
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
 }
-
-.selection-button.unselected {
-  background-color: transparent;
-  border: 1px solid #d4bbdd;
-  color: #d4bbdd;
-}
-
-.selection-button.selected {
-  background-color: #7a5d8d;
-  color: #ffffff;
-  border: 1px solid #7a5d8d;
-}
-
-@media (any-hover: hover) {
-  .selection-button:hover {
-    background-color: #9a76b3;
-    color: #ffffff;
-  }
-
-  .selection-button.selected:hover {
-    background-color: #9a76b3;
-    border: 1px solid #9a76b3;
-  }
+.sticker {
+  width: 100px;
+  height: 100px;
+  vertical-align: middle;
 }
 </style>
