@@ -4,7 +4,7 @@ import { UserService } from '../user/user.service';
 import { Response, Request, query } from 'express';
 import { ReadUserResponseDto } from '../user/dto/read-user.dto';
 import * as jwtDecode from 'jwt-decode';
-import { ApiResponse } from 'src/common.class';
+import { ApiResponse, APISearchMessage } from 'src/common.class';
 import { APIGuildMember, APIMessage, APIUser } from 'discord-api-types/v10';
 import { channel } from 'process';
 import { ReadGuildsResponseDto } from './dto/read-guilds';
@@ -69,7 +69,7 @@ export class GuildController {
     const queryString = req.originalUrl.split('?')[1];
     const user = jwtDecode.jwtDecode(req.cookies['jwt']) as ReadUserResponseDto;
     const token = await this.userService.getToken(user.account);
-    const result: ApiResponse<APIMessage[]> = await this.guildService.searchMessage(token, guildId, queryString);
+    const result: ApiResponse<APISearchMessage> = await this.guildService.searchMessage(token, guildId, queryString);
     return res.status(result.statusCode).send(result);
   }
 

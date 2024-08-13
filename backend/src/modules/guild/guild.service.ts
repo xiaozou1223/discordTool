@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { APIGuild, APIGuildChannel, APIGuildMember, APIMessage, APIRole, APIUser } from 'discord-api-types/v10';
 import { DiscordApi } from 'src/discord.api';
 import { DiscordChannel } from './dto/read-channel';
-import { ApiResponse } from 'src/common.class';
+import { ApiResponse, APISearchMessage } from 'src/common.class';
 import { ReadGuildsResponseDto } from './dto/read-guilds';
 
 @Injectable()
@@ -65,7 +65,7 @@ export class GuildService {
   }
 
   async searchMessage(token: string, guildId: string, queryString: string) {
-    const response = new ApiResponse<APIMessage[]>();
+    const response = new ApiResponse<APISearchMessage>();
     const discordResult = await DiscordApi.searchMessage(token, guildId, queryString);
     response.set(discordResult);
     return response;

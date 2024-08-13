@@ -1,5 +1,5 @@
 import apiClient from '../index'
-import { ApiResponse } from '../../common.class'
+import { ApiResponse, type APISearchMessage } from '../../common.class'
 import type { AxiosResponse } from 'axios'
 import type { APIGuild, APIGuildMember, APIRole } from 'discord-api-types/v10'
 import type { DiscordChannel } from './dto/read-channel'
@@ -53,6 +53,15 @@ export async function getGuildMemberApi(guildId: string, discordUserId: string):
 export async function getGuildsApi(): Promise<ApiResponse<ReadGuildsResponseDto[]>> {
   try {
     const response: AxiosResponse = await apiClient.get(`/guild`)
+    return response.data
+  } catch (err: any) {
+    throw (err.response as AxiosResponse).data
+  }
+}
+
+export async function searchMessagesApi(guildId: string, searchQuery: string): Promise<ApiResponse<APISearchMessage>> {
+  try {
+    const response: AxiosResponse = await apiClient.get(`/guild/${guildId}/messages/search?${searchQuery}`)
     return response.data
   } catch (err: any) {
     throw (err.response as AxiosResponse).data

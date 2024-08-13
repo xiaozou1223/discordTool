@@ -2,6 +2,7 @@ import axios from 'axios';
 import { APIUser, APIGuild, APIGuildChannel, APIGuildMember, APIRole, APIMessage } from 'discord-api-types/v10';
 import { ApiResponse } from './common.class';
 import { HttpStatus } from '@nestjs/common';
+import { APISearchMessage } from './common.class';
 
 const host = 'https://discord.com/api';
 const version = 'v10';
@@ -162,7 +163,7 @@ export const DiscordApi = {
   },
 
   async searchMessage(token: string, guildId: string, queryString: string) {
-    const response = new ApiResponse<APIMessage[]>();
+    const response = new ApiResponse<APISearchMessage>();
     try {
       const dcResponse = await axios.get(`${host}/${version}/guilds/${guildId}/messages/search?${queryString}`, {
         headers: {
@@ -170,7 +171,7 @@ export const DiscordApi = {
         },
       });
       if (dcResponse.status === HttpStatus.OK) {
-        response.data = dcResponse.data as APIMessage[];
+        response.data = dcResponse.data as APISearchMessage;
         response.message = '讀取成功';
         response.success = true;
         response.statusCode = HttpStatus.OK;
