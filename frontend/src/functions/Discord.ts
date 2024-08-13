@@ -121,3 +121,9 @@ export function getChannelSymbol(channelType: number) {
     }
   }
 }
+
+export function generateDiscordSnowflakeFromDate(timestamp: number) {
+  const discordEpoch = BigInt(1420070400000)
+  const relativeTimestamp = BigInt(timestamp) - discordEpoch
+  return (relativeTimestamp << BigInt(22)).toString()
+}
