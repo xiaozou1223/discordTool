@@ -1,3 +1,5 @@
+import type { APIMessage } from 'discord-api-types/v10'
+
 export class ApiResponse<T> {
   statusCode!: number
   success!: boolean
@@ -27,4 +29,9 @@ export class Pagination {
     this.hasPrevious = hasPrevious
     this.hasNext = hasNext
   }
+}
+
+export interface APISearchMessage {
+  messages: APIMessage[][]
+  total_results: number
 }
