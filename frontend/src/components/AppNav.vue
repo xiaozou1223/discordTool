@@ -1,5 +1,5 @@
 <template>
-  <nav v-if="!jwt" class="navbar navbar-expand-md sticky-top py-3 navbar-dark" id="mainNav">
+  <nav v-if="!userStore.jwt" class="navbar navbar-expand-md sticky-top py-3 navbar-dark" id="mainNav">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center" href="/"><span>DiscordTool</span></a>
     </div>
@@ -7,11 +7,13 @@
   <nav v-else class="navbar navbar-expand-md sticky-top py-3 navbar-dark" id="mainNav">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center">
-        <img class="rounded-circle" width="65" height="65" :src="iconUrl" />
-        <span style="padding: 0px; margin-left: 10px" v-if="user.discordUserData?.global_name">{{ user.discordUserData?.global_name }}</span>
+        <img class="rounded-circle" width="65" height="65" :src="userStore.iconUrl" />
+        <span style="padding: 0px; margin-left: 10px" v-if="userStore.user.discordUserData?.global_name">{{
+          userStore.user.discordUserData?.global_name
+        }}</span>
         <span style="padding: 0px; margin-left: 10px" v-else>UNKNOW</span>
       </a>
-      <span v-if="user.isTokenValid" class="navbar-text" style="font-size: 15px; color: rgb(0, 255, 71); font-weight: bold">Token有效</span>
+      <span v-if="userStore.user.isTokenValid" class="navbar-text" style="font-size: 15px; color: rgb(0, 255, 71); font-weight: bold">Token有效</span>
       <span v-else class="navbar-text" style="font-size: 15px; color: rgb(255, 0, 0); font-weight: bold">Token無效</span>
       <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navcol">
         <span class="visually-hidden">Toggle navigation</span>
@@ -23,7 +25,7 @@
           <div class="row">
             <div class="col-md-3">
               <a
-                v-if="user.isTokenValid"
+                v-if="userStore.user.isTokenValid"
                 class="nav-link page-link clickable-item"
                 role="button"
                 :style="{ color: page === Page.DiscordServer ? '#00bfff' : 'white' }"
@@ -35,7 +37,7 @@
             </div>
             <div class="col-md-3">
               <a
-                v-if="user.isTokenValid"
+                v-if="userStore.user.isTokenValid"
                 class="nav-link page-link clickable-item"
                 role="button"
                 :style="{ color: page === Page.Listening ? '#00bfff' : 'white' }"
@@ -69,15 +71,14 @@
 import router from '@/router'
 import Cookies from 'js-cookie'
 import { onMounted, onUnmounted, ref, type Ref } from 'vue'
-import { UserStore, JwtStore, checkLoginStatus } from './User'
+import { useUserStore } from '../stores/useUserStore'
 enum Page {
   DiscordServer = 'DiscordServer',
   User = 'User',
   Listening = 'Listening',
 }
 
-const { user, iconUrl, reloadUser } = UserStore()
-const { jwt, reloadJwt } = JwtStore()
+const userStore = useUserStore()
 const isPhoneWidth = ref(window.innerWidth < 768)
 const page: Ref<Page> = ref(Page.DiscordServer)
 
@@ -87,8 +88,7 @@ function handleResize() {
 
 onMounted(() => {
   window.addEventListener('resize', handleResize)
-  reloadJwt()
-  checkLoginStatus()
+  userStore.reloadJwt()
 })
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
@@ -97,8 +97,7 @@ onUnmounted(() => {
 function logout() {
   console.log('Logout!')
   Cookies.remove('jwt')
-  reloadJwt()
-  reloadUser()
+  userStore.reloadJwt()
   location.reload()
 }
 

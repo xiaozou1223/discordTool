@@ -44,10 +44,8 @@ import Channel from './ChannelRow.vue'
 import { getGuildsApi } from '@/api/guild/guild'
 import { ReadGuildsResponseDto } from '@/api/guild/dto/read-guilds'
 import { computed, onMounted, ref, watch, type Ref } from 'vue'
-import { checkLoginStatus, JwtStore, UserStore } from './User'
-const { reloadJwt } = JwtStore()
-
-const { user } = UserStore()
+import { useUserStore } from '../stores/useUserStore'
+const userStore = useUserStore()
 const guilds: Ref<ReadGuildsResponseDto[]> = ref([])
 const visibleGuilds: Ref<string[]> = ref([])
 const searchQuery: Ref<string> = ref('')
@@ -65,7 +63,7 @@ async function getGuilds() {
 }
 
 watch(
-  user,
+  userStore.user,
   async (newUser, oldUser) => {
     if (!newUser.isTokenValid) {
       return

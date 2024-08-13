@@ -61,11 +61,11 @@ import type { DiscordChannel } from '@/api/guild/dto/read-channel'
 import { getChannelsApi, getGuildApi, getMemberByUserIdAndGuildIdApi } from '@/api/guild/guild'
 import type { ApiResponse } from '@/common.class'
 import { ref, toRaw, watch, type Ref } from 'vue'
-import { UserStore } from './User'
+import { useUserStore } from '../stores/useUserStore'
 import ChannelActionsModal from './ChannelInfoModal/ChannelActionsModal.vue'
-import { hasRequiredPermission, calcUserOwnChannelPermissions, calcUserOwnRolesPermission, getChannelSymbol } from './Discord'
+import { hasRequiredPermission, calcUserOwnChannelPermissions, calcUserOwnRolesPermission, getChannelSymbol } from '../functions/Discord'
 
-const { user } = UserStore()
+const userStore = useUserStore()
 const props = defineProps<{
   guildId: string
 }>()
@@ -85,7 +85,7 @@ watch(
         guild.value = await getGuildInfo(newGuildId)
       }
       {
-        const response: ApiResponse<APIGuildMember> = await getMemberByUserIdAndGuildIdApi(newGuildId, user.value.discordUserId!)
+        const response: ApiResponse<APIGuildMember> = await getMemberByUserIdAndGuildIdApi(newGuildId, userStore.user.discordUserId!)
         userGuildMemberInfo.value = response.data as APIGuildMember
       }
       {
@@ -116,7 +116,7 @@ function checkViewChannelPermission(guild: APIGuild, channel: DiscordChannel): b
 
 function openModal(channel: DiscordChannel, userOwnChannelPermissions: bigint) {
   console.log('------------------------------------')
-  console.log(`使用者ID : ${user.value.discordUserId}`)
+  console.log(`使用者ID : ${userStore.user.discordUserId}`)
   console.log(`伺服器名稱 : ${props.guildId}`)
   console.log(`伺服器ID : ${props.guildId}`)
   console.log(`頻道名稱 : ${channel.name}`)

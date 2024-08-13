@@ -71,7 +71,7 @@
               :has-channel-manage-permission="
                 hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ManageChannels)
               "
-              :user-id="user.discordUserId!"
+              :user-id="userStore.user.discordUserId!"
             />
           </keep-alive>
           <keep-alive>
@@ -90,8 +90,8 @@ import { ref, defineExpose, type Ref } from 'vue'
 import ChannelInfo from './ChannelInfo.vue'
 import MessagesMassDeleter from './MessagesMassDeleter.vue'
 import MessageWatcher from './MessageWatcher.vue'
-import { hasRequiredPermission } from '../Discord'
-import { UserStore } from '../User'
+import { hasRequiredPermission } from '../../functions/Discord'
+import { useUserStore } from '../../stores/useUserStore'
 enum Page {
   none,
   info,
@@ -103,7 +103,7 @@ const userOwnChannelPermissions: Ref<bigint> = ref(BigInt(0))
 const showModal: Ref<boolean> = ref(false)
 const channel: Ref<DiscordChannel> = ref(new DiscordChannel())
 const page: Ref<Page> = ref(Page.none)
-const { user } = UserStore()
+const userStore = useUserStore()
 
 defineProps<{
   guild: APIGuild

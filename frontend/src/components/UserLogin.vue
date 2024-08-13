@@ -33,13 +33,11 @@ import { loginAPI } from '../api/user/user'
 import type { ReadUserResponseDto } from '@/api/user/dto/read-user.dto'
 import type { ApiResponse } from '@/common.class'
 import router from '@/router'
-import { checkLoginStatus, JwtStore, UserStore } from './User'
+import { useUserStore } from '../stores/useUserStore'
 
-const { reloadJwt } = JwtStore()
-const { reloadUser } = UserStore()
+const userStore = useUserStore()
 const account = ref('')
 const password = ref('')
-
 
 async function login() {
   if (!account.value || !password.value) {
@@ -51,8 +49,7 @@ async function login() {
   await loginAPI(account.value, password.value)
     .then(() => {
       router.push({ name: 'DiscordServer' })
-      reloadJwt()
-      reloadUser()
+      userStore.reloadJwt()
     })
     .catch((res: any) => {
       const result: ApiResponse<ReadUserResponseDto> = res

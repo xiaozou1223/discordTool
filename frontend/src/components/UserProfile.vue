@@ -3,7 +3,7 @@
     <div class="container py-5" style="text-align: center; background: #322e2e">
       <div class="text-center">
         <div>
-          <span style="font-size: 28px">帳號</span><span style="font-size: 28px; margin-left: 20px">{{ user.account }}</span>
+          <span style="font-size: 28px">帳號</span><span style="font-size: 28px; margin-left: 20px">{{ userStore.user.account }}</span>
         </div>
         <div><span style="font-size: 28px">修改密碼</span><input v-model="updateData.password" type="password" style="margin-left: 20px" /></div>
         <div><span style="font-size: 28px">確認密碼</span><input v-model="confirmPassword" type="password" style="margin-left: 20px" /></div>
@@ -24,8 +24,8 @@ import { ReadUserResponseDto } from '@/api/user/dto/read-user.dto'
 import { onMounted, ref, type Ref } from 'vue'
 import type { ApiResponse } from '@/common.class'
 import { UpdateUserDto } from '@/api/user/dto/update-user.dto'
-import { UserStore } from './User'
-const { user } = UserStore()
+import { useUserStore } from '../stores/useUserStore'
+const userStore = useUserStore()
 
 const updateData: Ref<UpdateUserDto> = ref(new UpdateUserDto())
 const confirmPassword = ref('')
@@ -38,7 +38,6 @@ async function update() {
     .then((res: any) => {
       const result: ApiResponse<ReadUserResponseDto> = res
       alert(result.message)
-      user.value = result.data as ReadUserResponseDto
       location.reload()
     })
     .catch((res: any) => {
