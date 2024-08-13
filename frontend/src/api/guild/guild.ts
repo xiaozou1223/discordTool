@@ -5,7 +5,7 @@ import type { APIGuild, APIGuildMember, APIRole } from 'discord-api-types/v10'
 import type { DiscordChannel } from './dto/read-channel'
 import type { ReadGuildsResponseDto } from './dto/read-guilds'
 
-export async function getChannelsApi(guildId: string): Promise<ApiResponse<DiscordChannel>> {
+export async function getChannelsApi(guildId: string): Promise<ApiResponse<DiscordChannel[]>> {
   try {
     const response: AxiosResponse = await apiClient.get(`/guild/${guildId}/channels`)
     return response.data
@@ -50,7 +50,7 @@ export async function getGuildMemberApi(guildId: string, discordUserId: string):
   }
 }
 
-export async function getGuildsApi(): Promise<ApiResponse<ReadGuildsResponseDto>> {
+export async function getGuildsApi(): Promise<ApiResponse<ReadGuildsResponseDto[]>> {
   try {
     const response: AxiosResponse = await apiClient.get(`/guild`)
     return response.data

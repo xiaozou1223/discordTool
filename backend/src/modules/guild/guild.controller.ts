@@ -20,7 +20,7 @@ export class GuildController {
   async getGuilds(@Req() req: Request, @Res() res: Response) {
     const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
     const token = await this.userService.getToken(user.account);
-    const result: ApiResponse<ReadGuildsResponseDto> = await this.guildService.getGuilds(token);
+    const result: ApiResponse<ReadGuildsResponseDto[]> = await this.guildService.getGuilds(token);
     return res.status(result.statusCode).send(result);
   }
 
@@ -69,7 +69,7 @@ export class GuildController {
     const queryString = req.originalUrl.split('?')[1];
     const user = jwtDecode.jwtDecode(req.cookies['jwt']) as ReadUserResponseDto;
     const token = await this.userService.getToken(user.account);
-    const result: ApiResponse<APIMessage> = await this.guildService.searchMessage(token, guildId, queryString);
+    const result: ApiResponse<APIMessage[]> = await this.guildService.searchMessage(token, guildId, queryString);
     return res.status(result.statusCode).send(result);
   }
 

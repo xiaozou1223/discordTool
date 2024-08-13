@@ -2,7 +2,7 @@ export class ApiResponse<T> {
   statusCode: number;
   success: boolean;
   message: string;
-  data?: T | T[] | null;
+  data?: T | null;
   pagination?: Pagination;
   public set(response: Partial<ApiResponse<T>>) {
     if (response.statusCode !== undefined) this.statusCode = response.statusCode;

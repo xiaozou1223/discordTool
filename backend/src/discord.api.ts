@@ -52,7 +52,7 @@ export const DiscordApi = {
   },
 
   async getUserGuilds(token: string) {
-    const response = new ApiResponse<APIGuild>();
+    const response = new ApiResponse<APIGuild[]>();
     try {
       const dcResponse = await axios.get(`${host}/${version}/users/@me/guilds`, {
         headers: {
@@ -74,7 +74,7 @@ export const DiscordApi = {
   },
 
   async getGuild(token: string, guildId: string) {
-    const response = new ApiResponse<APIGuild>();
+    const response = new ApiResponse<APIGuild[]>();
     try {
       const dcResponse = await axios.get(`${host}/${version}/guilds/${guildId}`, {
         headers: {
@@ -96,7 +96,7 @@ export const DiscordApi = {
   },
 
   async getChannels(token: string, guildId: string) {
-    const response = new ApiResponse<APIGuildChannel<any>>();
+    const response = new ApiResponse<APIGuildChannel<any>[]>();
     try {
       const dcResponse = await axios.get(`${host}/${version}/guilds/${guildId}/channels`, {
         headers: {
@@ -118,7 +118,7 @@ export const DiscordApi = {
   },
 
   async getMemberByUserIdAndGuildId(token: string, guildId: string, userId: string) {
-    const response = new ApiResponse<APIGuildMember>();
+    const response = new ApiResponse<APIGuildMember[]>();
     try {
       const dcResponse = await axios.get(`${host}/${version}/guilds/${guildId}/members/${userId}`, {
         headers: {
@@ -140,7 +140,7 @@ export const DiscordApi = {
   },
 
   async getRolesByGuildId(token: string, guildId: string) {
-    const response = new ApiResponse<APIRole>();
+    const response = new ApiResponse<APIRole[]>();
     try {
       const dcResponse = await axios.get(`${host}/${version}/guilds/${guildId}/roles`, {
         headers: {
@@ -162,7 +162,7 @@ export const DiscordApi = {
   },
 
   async searchMessage(token: string, guildId: string, queryString: string) {
-    const response = new ApiResponse<APIMessage>();
+    const response = new ApiResponse<APIMessage[]>();
     try {
       const dcResponse = await axios.get(`${host}/${version}/guilds/${guildId}/messages/search?${queryString}`, {
         headers: {

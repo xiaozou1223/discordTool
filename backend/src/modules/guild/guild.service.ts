@@ -8,7 +8,7 @@ import { ReadGuildsResponseDto } from './dto/read-guilds';
 @Injectable()
 export class GuildService {
   async getGuilds(token: string) {
-    const response = new ApiResponse<ReadGuildsResponseDto>();
+    const response = new ApiResponse<ReadGuildsResponseDto[]>();
     const discordResult = await DiscordApi.getUserGuilds(token);
     const { data, ...result } = discordResult;
     const guildsData: ReadGuildsResponseDto[] = (data as APIGuild[]).map((item) => {
@@ -21,8 +21,8 @@ export class GuildService {
 
   async getChannels(token: string, guildId: string) {
     const result = await DiscordApi.getChannels(token, guildId);
-    const respone: ApiResponse<DiscordChannel> = new ApiResponse();
-    const orginData = result.data as APIGuildChannel<any>[];
+    const respone: ApiResponse<DiscordChannel[]> = new ApiResponse();
+    const orginData = result.data!;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { data, ...resultMessage } = result;
     respone.data = orginData.map((channel) => {
@@ -42,7 +42,7 @@ export class GuildService {
   async getRolesByGuildId(token: string, guildId: string) {
     const result = await DiscordApi.getRolesByGuildId(token, guildId);
     const { data, ...resultMessage } = result;
-    const respone: ApiResponse<APIRole> = new ApiResponse();
+    const respone: ApiResponse<APIRole[]> = new ApiResponse();
     respone.data = data;
     respone.set(resultMessage);
     return respone;
@@ -51,7 +51,7 @@ export class GuildService {
   async getMemberByUserIdAndGuildId(token: string, guildId: string, userId: string) {
     const result = await DiscordApi.getMemberByUserIdAndGuildId(token, guildId, userId);
     const { data, ...resultMessage } = result;
-    const respone: ApiResponse<APIGuildMember> = new ApiResponse();
+    const respone: ApiResponse<APIGuildMember[]> = new ApiResponse();
     respone.data = data;
     respone.set(resultMessage);
     return respone;
@@ -65,7 +65,7 @@ export class GuildService {
   }
 
   async searchMessage(token: string, guildId: string, queryString: string) {
-    const response = new ApiResponse<APIMessage>();
+    const response = new ApiResponse<APIMessage[]>();
     const discordResult = await DiscordApi.searchMessage(token, guildId, queryString);
     response.set(discordResult);
     return response;
@@ -79,7 +79,7 @@ export class GuildService {
   }
 
   async getGuildInfo(token: string, guildId: string) {
-    const response = new ApiResponse<APIGuild>();
+    const response = new ApiResponse<APIGuild[]>();
     const discordResult = await DiscordApi.getGuild(token, guildId);
     response.set(discordResult);
     return response;
