@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
-      <div class="col-3" style="text-align: center; padding-top: 28px; padding-bottom: 28px; font-weight: bolder">
-        <span style="padding: 0px; margin-left: 10px; font-weight: bolder">發言者</span>
+      <div class="col-1" style="text-align: center; padding-top: 28px; padding-bottom: 28px; font-weight: bolder">
+        <span style="padding: 0px; margin-left: 10px; font-weight: bolder">從</span>
       </div>
       <div class="col-3" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
         <img class="rounded-circle" width="65px" height="65px" :src="authorIcon" />
