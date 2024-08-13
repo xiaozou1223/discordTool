@@ -89,8 +89,8 @@ watch(
         userGuildMemberInfo.value = response.data as APIGuildMember
       }
       {
-        const response: ApiResponse<DiscordChannel> = await getChannelsApi(newGuildId)
-        channels.value = response.data as DiscordChannel[]
+        const response: ApiResponse<DiscordChannel[]> = await getChannelsApi(newGuildId)
+        channels.value = response.data!
         channels.value.forEach((channel) => {
           return (channel.name = `${getChannelSymbol(channel.type)} ${channel.name}`)
         })

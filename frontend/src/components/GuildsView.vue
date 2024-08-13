@@ -58,7 +58,7 @@ const filteredGuilds = computed(() => {
 async function getGuilds() {
   console.log('getGuilds!')
   isLoading.value = true
-  guilds.value = (await getGuildsApi()).data as ReadGuildsResponseDto[]
+  guilds.value = (await getGuildsApi()).data!
   isLoading.value = false
 }
 
