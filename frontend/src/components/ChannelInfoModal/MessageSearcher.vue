@@ -24,7 +24,9 @@
         data-bs-target="#message-viewer"
       >
         <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bolder">
-          <span style="padding: 0px; margin-left: 10px; font-weight: bolder">訊息預覽(最多顯示25則)</span>
+          <span style="padding: 0px; margin-left: 10px; font-weight: bolder" @click="messagesViewer!.scrollTop = messagesViewer!.scrollHeight"
+            >訊息預覽(最多顯示25則)</span
+          >
         </div>
       </div>
       <div class="row collapse" id="message-viewer" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
@@ -111,12 +113,6 @@ onMounted(async () => {
     searchMessageResult.value = result.data
     searchMessageResult.value.messages.reverse()
     console.log(searchMessageResult.value)
-  }
-})
-
-watch(messagesViewer, () => {
-  if (messagesViewer.value) {
-    messagesViewer.value.scrollTop = messagesViewer.value.scrollHeight
   }
 })
 
