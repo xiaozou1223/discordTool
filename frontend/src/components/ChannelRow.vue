@@ -52,7 +52,7 @@
       </div>
     </div>
   </div>
-  <ChannelActionsModal ref="modalRef" :guild="guild!" :channels="channels" :user-guild-member-info="userGuildMemberInfo!" />
+  <ChannelActionsModal ref="modalRef" :guild="guild!" :guildChannels="channels" :user-guild-member-info="userGuildMemberInfo!" />
 </template>
 
 <script setup lang="ts">

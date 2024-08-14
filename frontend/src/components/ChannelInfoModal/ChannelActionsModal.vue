@@ -67,6 +67,7 @@
               :key="channel.id"
               :channel="channel"
               :guild="guild"
+              :guild-channels="guildChannels"
               :has-view-permission="hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ViewChannel)"
               :has-channel-manage-permission="
                 hasRequiredPermission(guild, userGuildMemberInfo, userOwnChannelPermissions, PermissionFlagsBits.ManageChannels)
@@ -107,7 +108,7 @@ const userStore = useUserStore()
 
 defineProps<{
   guild: APIGuild
-  channels: DiscordChannel[]
+  guildChannels: DiscordChannel[]
   userGuildMemberInfo: APIGuildMember
 }>()
 

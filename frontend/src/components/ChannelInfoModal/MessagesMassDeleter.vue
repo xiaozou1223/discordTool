@@ -22,6 +22,7 @@
       v-if="step === Step.search"
       :filterSetting="filterSetting!"
       :guild="guild"
+      :guildChannels="guildChannels"
       @back-to-filter-page="
         () => {
           step = Step.setFilter
@@ -57,6 +58,7 @@ const props = defineProps<{
   userId: string
   guild: APIGuild
   channel: DiscordChannel
+  guildChannels: DiscordChannel[]
   hasViewPermission: boolean
   hasChannelManagePermission: boolean
 }>()

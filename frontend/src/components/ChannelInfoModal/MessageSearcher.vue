@@ -31,7 +31,7 @@
       </div>
       <div class="row collapse" id="message-viewer" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
         <div class="container" style="max-height: 300px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ccc" ref="messagesViewer">
-          <Message v-for="message of searchMessageResult.messages" :message="message[0]" />
+          <Message v-for="message of searchMessageResult.messages" :message="message[0]" :guildChannels="guildChannels" :guild="guild" />
         </div>
       </div>
     </div>
@@ -50,10 +50,11 @@
 import { useUserStore } from '../../stores/useUserStore'
 import { getMemberByUserIdAndGuildIdApi, searchMessagesApi } from '@/api/guild/guild'
 import type { APISearchMessage } from '@/common.class'
-import type { APIGuild, APIGuildMember, APIMessage, APIMessageComponent } from 'discord-api-types/v10'
+import type { APIChannel, APIGuild, APIGuildMember, APIMessage, APIMessageComponent } from 'discord-api-types/v10'
 import { ref, type Ref, onMounted, watch, computed } from 'vue'
 import { generateUserAvatarUrl, generateGuildIconUrl, generateStickerUrl, generateEmojiUrl } from '../../functions/Discord'
 import Message from '../MessageViewer/Message.vue'
+import type { DiscordChannel } from '@/api/guild/dto/read-channel'
 
 interface FilterSetting {
   authorId: string
@@ -65,7 +66,7 @@ const authorName = ref('UNKNOW')
 const authorIcon = ref('/unknow.jpg')
 const searchMessageResult: Ref<APISearchMessage | null> = ref(null)
 
-const props = defineProps<{ filterSetting: FilterSetting; guild: APIGuild }>()
+const props = defineProps<{ filterSetting: FilterSetting; guild: APIGuild; guildChannels: DiscordChannel[] }>()
 const emit = defineEmits<{
   (e: 'backToFilterPage'): void
 }>()
@@ -100,16 +101,3 @@ onMounted(async () => {
   }
 })
 </script>
-
-<style>
-.emoji {
-  width: 30px;
-  height: 30px;
-  vertical-align: middle;
-}
-.sticker {
-  width: 100px;
-  height: 100px;
-  vertical-align: middle;
-}
-</style>
