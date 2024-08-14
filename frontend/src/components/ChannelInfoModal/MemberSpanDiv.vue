@@ -11,16 +11,7 @@
       <span v-if="!hasViewPermission" style="padding-top: 5px">🚫</span>
     </div>
     <div class="col-2" style="text-align: center">
-      <img
-        class="rounded-circle"
-        width="50px"
-        height="50px"
-        :src="
-          member.user.avatar
-            ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png`
-            : '/discordIcon.png'
-        "
-      />
+      <img class="rounded-circle" width="50px" height="50px" :src="generateUserAvatarUrl(member.user)" />
     </div>
     <div class="col" style="text-align: center; padding-top: 8px; padding-bottom: 8px">
       <span class="selectable-text" style="font-weight: bold; font-size: 18px" :style="{ color: fontColor }">
@@ -32,9 +23,10 @@
 
 <script setup lang="ts">
 import type { APIGuildMember } from 'discord-api-types/v10'
+import { generateUserAvatarUrl } from '../../functions/Discord'
 
 defineProps<{
-  hasViewPermission:boolean
+  hasViewPermission: boolean
   isManager: boolean
   members: APIGuildMember[]
   fontColor: string

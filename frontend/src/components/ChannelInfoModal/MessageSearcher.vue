@@ -33,7 +33,7 @@
         <div class="container" style="max-height: 300px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ccc" ref="messagesViewer">
           <div class="row" v-for="message of searchMessageResult?.messages">
             <div class="col-2" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
-              <img class="rounded-circle" width="40px" height="40px" :src="getMessageAuthorIcon(message[0])" />
+              <img class="rounded-circle" width="40px" height="40px" :src="generateUserAvatarUrl(message[0].author)" />
             </div>
             <div class="col" style="text-align: left; padding-top: 5px; padding-bottom: 5px">
               <div class="row">
@@ -46,7 +46,7 @@
                 <img v-if="attachment.content_type === 'image/jpeg'" :src="attachment.url" />
               </div>
               <div class="row" v-for="sticker_item of message[0].sticker_items">
-                <img :src="getStickerUrl(sticker_item)" :alt="sticker_item.name" />
+                <img :src="generateStickerUrl(sticker_item)" :alt="sticker_item.name" />
               </div>
             </div>
           </div>
@@ -70,6 +70,8 @@ import { getMemberByUserIdAndGuildIdApi, searchMessagesApi } from '@/api/guild/g
 import type { APISearchMessage } from '@/common.class'
 import type { APIGuild, APIGuildMember, APIMessage, APIMessageComponent } from 'discord-api-types/v10'
 import { ref, type Ref, onMounted, watch, computed } from 'vue'
+import { generateUserAvatarUrl, generateGuildIconUrl, generateStickerUrl, generateEmojiUrl } from '../../functions/Discord'
+
 interface FilterSetting {
   authorId: string
   searchQuery: string
@@ -94,17 +96,16 @@ onMounted(async () => {
     } else {
       const result = await getMemberByUserIdAndGuildIdApi(props.guild.id, props.filterSetting.authorId)
       const member = result.data
+      authorIcon.value = generateUserAvatarUrl(member?.user)
       if (member) {
         authorName.value = member.nick || member.user.global_name || member.user.username
-        authorIcon.value = member.user.avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png` : '/discordIcon.png'
       } else {
         authorName.value = 'UNKNOW'
-        authorIcon.value = '/unknow.jpg'
       }
     }
   } else {
     authorName.value = 'ALL'
-    authorIcon.value = props.guild.icon ? `https://cdn.discordapp.com/icons/${props.guild.id}/${props.guild.icon}.png` : `/discordIcon.png`
+    authorIcon.value = generateGuildIconUrl(props.guild)
   }
   console.log(props.filterSetting.searchQuery)
   const result = await searchMessagesApi(props.guild.id, props.filterSetting.searchQuery)
@@ -121,27 +122,11 @@ function parseMessageContent(content: string) {
 
   const formattedContent = content.replace(emojiRegex, (match) => {
     const [_, emojiName, emojiId] = match.match(/^<:([a-zA-Z0-9_]+):([0-9]+)>$/)!
-    const emojiUrl = `https://cdn.discordapp.com/emojis/${emojiId}.png`
+    const emojiUrl = generateEmojiUrl(emojiId)
     return `<img src="${emojiUrl}" alt="${emojiName}" class="emoji">`
   })
 
   return formattedContent.replace(/(^|>)([^<]+)(<|$)/g, '$1<span>$2</span>$3')
-}
-
-function getMessageAuthorIcon(message: APIMessage) {
-  if (message.author) {
-    return message.author.avatar ? `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png` : '/discordIcon.png'
-  }
-}
-
-function getStickerUrl(sticker: { id: string; format_type: number; name: string }) {
-  let format = 'png'
-  if (sticker.format_type === 2) {
-    format = 'apng'
-  } else if (sticker.format_type === 3) {
-    format = 'json'
-  }
-  return `https://cdn.discordapp.com/stickers/${sticker.id}.${format}`
 }
 </script>
 

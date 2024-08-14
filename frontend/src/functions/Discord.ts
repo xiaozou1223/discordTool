@@ -1,5 +1,14 @@
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
-import { type APIGuild, type APIGuildMember, type APIRole, PermissionFlagsBits } from 'discord-api-types/v10'
+import type { ReadGuildsResponseDto } from '@/api/guild/dto/read-guilds'
+import {
+  StickerFormatType,
+  type APIGuild,
+  type APIGuildMember,
+  type APIRole,
+  type APIUser,
+  PermissionFlagsBits,
+  type APIStickerItem,
+} from 'discord-api-types/v10'
 
 export interface PermissionOverwrite {
   id: string
@@ -126,4 +135,48 @@ export function generateDiscordSnowflakeFromDate(timestamp: number) {
   const discordEpoch = BigInt(1420070400000)
   const relativeTimestamp = BigInt(timestamp) - discordEpoch
   return (relativeTimestamp << BigInt(22)).toString()
+}
+
+export function generateUserAvatarUrl(user: APIUser | null | undefined) {
+  if (user) {
+    return user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : '/discordIcon.png'
+  } else {
+    return '/unknow.jpg'
+  }
+}
+
+export function generateGuildIconUrl(guild: ReadGuildsResponseDto | APIGuild | null | undefined) {
+  if (guild) {
+    return guild.icon ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png` : `/discordIcon.png`
+  } else {
+    return '/unknow.jpg'
+  }
+}
+
+export function generateStickerUrl(stickerItem: APIStickerItem) {
+  let format = 'png'
+
+  switch (stickerItem.format_type) {
+    case StickerFormatType.PNG: {
+      format = 'png'
+      break
+    }
+    case StickerFormatType.APNG: {
+      format = 'png'
+      break
+    }
+    case StickerFormatType.GIF: {
+      format = 'gif'
+      break
+    }
+    case StickerFormatType.Lottie: {
+      format = 'json'
+      break
+    }
+  }
+  return `https://cdn.discordapp.com/stickers/${stickerItem.id}.${format}`
+}
+
+export function generateEmojiUrl(emojiId: string) {
+  return `https://cdn.discordapp.com/emojis/${emojiId}`
 }

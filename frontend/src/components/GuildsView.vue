@@ -16,16 +16,7 @@
           @click="handleShow(guild.id)"
         >
           <div class="col-2 col-lg-4" style="text-align: center">
-            <img
-              class="rounded-circle"
-              width="50px"
-              height="50px"
-              :src="
-                guild.icon
-                  ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
-                  : `/discordIcon.png`
-              "
-            />
+            <img class="rounded-circle" width="50px" height="50px" :src="generateGuildIconUrl(guild)" />
           </div>
           <div class="col" style="text-align: left; padding-top: 11px; padding-bottom: 11px">
             <span style="margin-left: 10px; font-weight: bold">{{ guild.name }}</span>
@@ -45,6 +36,8 @@ import { getGuildsApi } from '@/api/guild/guild'
 import { ReadGuildsResponseDto } from '@/api/guild/dto/read-guilds'
 import { computed, onMounted, ref, watch, type Ref } from 'vue'
 import { useUserStore } from '../stores/useUserStore'
+import { generateGuildIconUrl } from '../functions/Discord'
+
 const userStore = useUserStore()
 const guilds: Ref<ReadGuildsResponseDto[]> = ref([])
 const visibleGuilds: Ref<string[]> = ref([])

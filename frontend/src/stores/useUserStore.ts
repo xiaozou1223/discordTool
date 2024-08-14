@@ -4,6 +4,7 @@ import router from '@/router'
 import Cookies from 'js-cookie'
 import * as jwtDecode from 'jwt-decode'
 import { ref, watch } from 'vue'
+import { generateUserAvatarUrl } from '@/functions/Discord'
 
 export const useUserStore = defineStore('user', () => {
   const user = ref(new ReadUserResponseDto())
@@ -28,11 +29,7 @@ export const useUserStore = defineStore('user', () => {
     console.log('reloadUser!')
     if (jwt.value) {
       user.value = jwtDecode.jwtDecode(jwt.value)
-      if (user.value.discordUserData && user.value.discordUserData.avatar) {
-        iconUrl.value = `https://cdn.discordapp.com/avatars/${user.value.discordUserData.id}/${user.value.discordUserData.avatar}.png`
-      } else {
-        iconUrl.value = '/unknow.jpg'
-      }
+      iconUrl.value = generateUserAvatarUrl(user.value.discordUserData)
     } else {
       user.value = new ReadUserResponseDto()
     }

@@ -2,15 +2,10 @@
   <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
     <div class="col-sm-3">
       <div v-if="guild.icon" class="col" style="text-align: center">
-        <img class="rounded-circle" width="50px" height="50px" :src="`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`" />
+        <img class="rounded-circle" width="50px" height="50px" :src="generateGuildIconUrl(guild)" />
       </div>
       <div v-else class="col" style="text-align: center">
-        <img
-          class="rounded-circle"
-          width="50px"
-          height="50px"
-          :src="`/discordIcon.png`"
-        />
+        <img class="rounded-circle" width="50px" height="50px" :src="`/discordIcon.png`" />
       </div>
     </div>
     <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
@@ -31,6 +26,7 @@
 <script setup lang="ts">
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
 import type { APIGuild } from 'discord-api-types/v10'
+import { generateGuildIconUrl } from '../../functions/Discord'
 
 function getChannelNameColor(hasViewPermission: boolean, hasChannelManagePermission: boolean) {
   if (hasChannelManagePermission) {
