@@ -39,8 +39,10 @@
       <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bolder">
         <button @click="emit('backToFilterPage')" class="btn btn-primary">返回</button>
       </div>
-      <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bolder">
-        <button @click="emit('backToFilterPage')" class="btn btn-danger">批量刪除</button>
+      <div v-if="searchMessageResult" class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bolder">
+        <button @click="emit('startDelete', searchMessageResult)" class="btn btn-danger" :disabled="!(searchMessageResult.total_results > 0)">
+          批量刪除
+        </button>
       </div>
     </div>
   </div>
@@ -50,9 +52,9 @@
 import { useUserStore } from '../../../stores/useUserStore'
 import { getMemberByUserIdAndGuildIdApi, searchMessagesApi } from '@/api/guild/guild'
 import type { APISearchMessage } from '@/common.class'
-import type { APIChannel, APIGuild, APIGuildMember, APIMessage, APIMessageComponent } from 'discord-api-types/v10'
-import { ref, type Ref, onMounted, watch, computed } from 'vue'
-import { generateUserAvatarUrl, generateGuildIconUrl, generateStickerUrl, generateEmojiUrl } from '../../../functions/Discord'
+import type { APIGuild } from 'discord-api-types/v10'
+import { ref, type Ref, onMounted } from 'vue'
+import { generateUserAvatarUrl, generateGuildIconUrl } from '../../../functions/Discord'
 import Message from '../../MessageViewer/Message.vue'
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
 
@@ -69,6 +71,7 @@ const searchMessageResult: Ref<APISearchMessage | null> = ref(null)
 const props = defineProps<{ filterSetting: FilterSetting; guild: APIGuild; guildChannels: DiscordChannel[] }>()
 const emit = defineEmits<{
   (e: 'backToFilterPage'): void
+  (e: 'startDelete', searchMessageResult: APISearchMessage): void
 }>()
 const messagesViewer = ref<HTMLElement | null>(null)
 

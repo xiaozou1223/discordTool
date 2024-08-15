@@ -15,7 +15,12 @@
         :channel="channel"
         :has-view-permission="hasViewPermission"
         :has-channel-manage-permission="hasChannelManagePermission"
-        @update-filter-setting="goSearcher"
+        @update-filter-setting="
+          (newFilterSetting) => {
+            filterSetting = newFilterSetting
+            step = Step.search
+          }
+        "
       />
     </KeepAlive>
     <MessageSearcher
@@ -28,6 +33,19 @@
           step = Step.setFilter
         }
       "
+      @start-delete="
+        (newSearchMessageResult) => {
+          searchMessageResult = newSearchMessageResult
+          step = Step.delete
+        }
+      "
+    />
+    <MessageDeleteProcess
+      v-if="step === Step.delete && searchMessageResult"
+      :filterSetting="filterSetting!"
+      :guild="guild"
+      :guildChannels="guildChannels"
+      :search-message-result="searchMessageResult"
     />
   </div>
   <h4 v-else>無權限查看該頻道</h4>
@@ -40,6 +58,8 @@ import InfoTitle from './InfoComponents/InfoTitle.vue'
 import { onMounted, ref, watch, type Ref } from 'vue'
 import MessageFilterSetting from './MessageMassDeleterCompoents/MessageFilterSetting.vue'
 import MessageSearcher from './MessageMassDeleterCompoents/MessageSearcher.vue'
+import MessageDeleteProcess from './MessageMassDeleterCompoents/MessageDeleteProcess.vue'
+import type { APISearchMessage } from '@/common.class'
 
 interface FilterSetting {
   authorId: string
@@ -53,6 +73,7 @@ enum Step {
 
 const filterSetting: Ref<FilterSetting | null> = ref(null)
 const step: Ref<Step> = ref(Step.setFilter)
+const searchMessageResult: Ref<APISearchMessage | null> = ref(null)
 
 const props = defineProps<{
   userId: string
@@ -62,11 +83,6 @@ const props = defineProps<{
   hasViewPermission: boolean
   hasChannelManagePermission: boolean
 }>()
-
-function goSearcher(newFilterSetting: FilterSetting) {
-  filterSetting.value = newFilterSetting
-  step.value = Step.search
-}
 </script>
 
 <style scoped>
