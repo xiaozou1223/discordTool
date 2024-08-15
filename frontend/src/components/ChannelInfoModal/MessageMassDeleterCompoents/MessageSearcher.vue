@@ -47,13 +47,13 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '../../stores/useUserStore'
+import { useUserStore } from '../../../stores/useUserStore'
 import { getMemberByUserIdAndGuildIdApi, searchMessagesApi } from '@/api/guild/guild'
 import type { APISearchMessage } from '@/common.class'
 import type { APIChannel, APIGuild, APIGuildMember, APIMessage, APIMessageComponent } from 'discord-api-types/v10'
 import { ref, type Ref, onMounted, watch, computed } from 'vue'
-import { generateUserAvatarUrl, generateGuildIconUrl, generateStickerUrl, generateEmojiUrl } from '../../functions/Discord'
-import Message from '../MessageViewer/Message.vue'
+import { generateUserAvatarUrl, generateGuildIconUrl, generateStickerUrl, generateEmojiUrl } from '../../../functions/Discord'
+import Message from '../../MessageViewer/Message.vue'
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
 
 interface FilterSetting {

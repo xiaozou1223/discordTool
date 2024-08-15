@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
 import type { APIGuild } from 'discord-api-types/v10'
-import { generateGuildIconUrl } from '../../functions/Discord'
+import { generateGuildIconUrl } from '../../../functions/Discord'
 
 function getChannelNameColor(hasViewPermission: boolean, hasChannelManagePermission: boolean) {
   if (hasChannelManagePermission) {

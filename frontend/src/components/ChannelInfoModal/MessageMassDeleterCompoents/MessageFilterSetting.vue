@@ -100,7 +100,7 @@
 import { onMounted, ref, type Ref, watch } from 'vue'
 import moment from 'moment'
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
-import { generateDiscordSnowflakeFromDate } from '../../functions/Discord'
+import { generateDiscordSnowflakeFromDate } from '../../../functions/Discord'
 
 interface SelectOption {
   value: string

@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import type { APIGuildMember } from 'discord-api-types/v10'
-import { generateUserAvatarUrl } from '../../functions/Discord'
+import { generateUserAvatarUrl } from '../../../functions/Discord'
 
 defineProps<{
   hasViewPermission: boolean

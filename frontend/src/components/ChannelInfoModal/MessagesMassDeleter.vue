@@ -36,10 +36,10 @@
 <script setup lang="ts">
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
 import type { APIGuild } from 'discord-api-types/v10'
-import InfoTitle from './InfoTitle.vue'
+import InfoTitle from './InfoComponents/InfoTitle.vue'
 import { onMounted, ref, watch, type Ref } from 'vue'
-import MessageFilterSetting from './MessageFilterSetting.vue'
-import MessageSearcher from './MessageSearcher.vue'
+import MessageFilterSetting from './MessageMassDeleterCompoents/MessageFilterSetting.vue'
+import MessageSearcher from './MessageMassDeleterCompoents/MessageSearcher.vue'
 
 interface FilterSetting {
   authorId: string

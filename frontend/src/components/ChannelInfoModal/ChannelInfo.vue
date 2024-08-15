@@ -35,9 +35,9 @@ import { getGuildMemberApi } from '@/api/guild/guild'
 import { PermissionFlagsBits, type APIGuild, type APIGuildMember, type APIRole } from 'discord-api-types/v10'
 import { ref, watch, onMounted, type Ref } from 'vue'
 import { calcUserOwnChannelPermissions, hasRequiredPermission, calcRolesPermissionOverwrite } from '../../functions/Discord'
-import InfoTitle from './InfoTitle.vue'
-import RoleSpanDiv from './RoleSpanDiv.vue'
-import MemberSpanDiv from './MemberSpanDiv.vue'
+import InfoTitle from './InfoComponents/InfoTitle.vue'
+import RoleSpanDiv from './InfoComponents/RoleSpanDiv.vue'
+import MemberSpanDiv from './InfoComponents/MemberSpanDiv.vue'
 
 const allowMembers: Ref<APIGuildMember[]> = ref([])
 const allowRoles: Ref<APIRole[]> = ref([])
