@@ -30,12 +30,10 @@ import { generateGuildIconUrl } from '../../../functions/Discord'
 
 function getChannelNameColor(hasViewPermission: boolean, hasChannelManagePermission: boolean) {
   if (hasChannelManagePermission) {
-    console.log('#00bfff')
     return '#00bfff'
   } else if (hasViewPermission) {
     return 'white'
   } else {
-    console.log('red')
     return 'red'
   }
 }
