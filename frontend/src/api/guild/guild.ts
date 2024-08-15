@@ -67,3 +67,12 @@ export async function searchMessagesApi(guildId: string, searchQuery: string): P
     throw (err.response as AxiosResponse).data
   }
 }
+
+export async function deleteMessagesApi(channelId: string, messageId: string): Promise<ApiResponse<null>> {
+  try {
+    const response: AxiosResponse = await apiClient.delete(`/guild/${channelId}/${messageId}`)
+    return response.data
+  } catch (err: any) {
+    throw (err.response as AxiosResponse).data
+  }
+}

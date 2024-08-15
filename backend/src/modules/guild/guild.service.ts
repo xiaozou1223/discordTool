@@ -19,11 +19,10 @@ export class GuildService {
     return response;
   }
 
-  async getChannels(token: string, guildId: string) {
+  async getChannels(token: string, guildId: string): Promise<ApiResponse<DiscordChannel[]>> {
     const result = await DiscordApi.getChannels(token, guildId);
     const respone: ApiResponse<DiscordChannel[]> = new ApiResponse();
     const orginData = result.data!;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { data, ...resultMessage } = result;
     respone.data = orginData.map((channel) => {
       return {
@@ -39,49 +38,27 @@ export class GuildService {
     return respone;
   }
 
-  async getRolesByGuildId(token: string, guildId: string) {
-    const result = await DiscordApi.getRolesByGuildId(token, guildId);
-    const { data, ...resultMessage } = result;
-    const respone: ApiResponse<APIRole[]> = new ApiResponse();
-    respone.data = data;
-    respone.set(resultMessage);
-    return respone;
+  async getRolesByGuildId(token: string, guildId: string): Promise<ApiResponse<APIRole[]>> {
+    return await DiscordApi.getRolesByGuildId(token, guildId);
   }
 
-  async getMemberByUserIdAndGuildId(token: string, guildId: string, userId: string) {
-    const result = await DiscordApi.getMemberByUserIdAndGuildId(token, guildId, userId);
-    const { data, ...resultMessage } = result;
-    const respone: ApiResponse<APIGuildMember[]> = new ApiResponse();
-    respone.data = data;
-    respone.set(resultMessage);
-    return respone;
+  async getMemberByUserIdAndGuildId(token: string, guildId: string, userId: string): Promise<ApiResponse<APIGuildMember>> {
+    return await DiscordApi.getMemberByUserIdAndGuildId(token, guildId, userId);
   }
 
-  async getMember(token: string, guildId: string, discordUserId: string) {
-    const response = new ApiResponse<APIGuildMember>();
-    const discordResult = await DiscordApi.getMember(token, guildId, discordUserId);
-    response.set(discordResult);
-    return response;
+  async getMember(token: string, guildId: string, discordUserId: string): Promise<ApiResponse<APIGuildMember>> {
+    return await DiscordApi.getMember(token, guildId, discordUserId);
   }
 
-  async searchMessage(token: string, guildId: string, queryString: string) {
-    const response = new ApiResponse<APISearchMessage>();
-    const discordResult = await DiscordApi.searchMessage(token, guildId, queryString);
-    response.set(discordResult);
-    return response;
+  async searchMessage(token: string, guildId: string, queryString: string): Promise<ApiResponse<APISearchMessage>> {
+    return await DiscordApi.searchMessage(token, guildId, queryString);
   }
 
-  async deleteMessage(token: string, channelId: string, messageId: string) {
-    const response = new ApiResponse<null>();
-    const discordResult = await DiscordApi.deleteMessage(token, channelId, messageId);
-    response.set(discordResult);
-    return response;
+  async deleteMessage(token: string, channelId: string, messageId: string): Promise<ApiResponse<null>> {
+    return await DiscordApi.deleteMessage(token, channelId, messageId);
   }
 
-  async getGuildInfo(token: string, guildId: string) {
-    const response = new ApiResponse<APIGuild[]>();
-    const discordResult = await DiscordApi.getGuild(token, guildId);
-    response.set(discordResult);
-    return response;
+  async getGuildInfo(token: string, guildId: string): Promise<ApiResponse<APIGuild[]>> {
+    return await DiscordApi.getGuild(token, guildId);
   }
 }

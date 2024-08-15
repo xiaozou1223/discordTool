@@ -26,7 +26,7 @@ export class GuildController {
 
   @Get(':guildId/channels')
   async getChannels(@Param('guildId') guildId: string, @Req() req: Request, @Res() res: Response) {
-    const user = jwtDecode.jwtDecode(req.cookies['jwt']) as ReadUserResponseDto;
+    const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
     const token = await this.userService.getToken(user.account);
     const result = await this.guildService.getChannels(token, guildId);
     return res.status(result.statusCode).send(result);
@@ -34,7 +34,7 @@ export class GuildController {
 
   @Get(':guildId/members/:userId')
   async getMemberByUserIdAndGuildId(@Param('guildId') guildId: string, @Param('userId') userId: string, @Req() req: Request, @Res() res: Response) {
-    const user = jwtDecode.jwtDecode(req.cookies['jwt']) as ReadUserResponseDto;
+    const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
     const token = await this.userService.getToken(user.account);
     const result = await this.guildService.getMemberByUserIdAndGuildId(token, guildId, userId);
     return res.status(result.statusCode).send(result);
@@ -42,7 +42,7 @@ export class GuildController {
 
   @Get(':guildId/roles')
   async getRolesByUserIdAndGuildId(@Param('guildId') guildId: string, @Req() req: Request, @Res() res: Response) {
-    const user = jwtDecode.jwtDecode(req.cookies['jwt']) as ReadUserResponseDto;
+    const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
     const token = await this.userService.getToken(user.account);
     const result = await this.guildService.getRolesByGuildId(token, guildId);
     return res.status(result.statusCode).send(result);
@@ -50,7 +50,7 @@ export class GuildController {
 
   @Get(':guildId')
   async getGuildInfo(@Param('guildId') guildId: string, @Req() req: Request, @Res() res: Response) {
-    const user = jwtDecode.jwtDecode(req.cookies['jwt']) as ReadUserResponseDto;
+    const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
     const token = await this.userService.getToken(user.account);
     const result = await this.guildService.getGuildInfo(token, guildId);
     return res.status(result.statusCode).send(result);
@@ -58,7 +58,7 @@ export class GuildController {
 
   @Get(':guildId/members/:discordUserId')
   async getUser(@Param('guildId') guildId: string, @Param('discordUserId') discordUserId: string, @Req() req: Request, @Res() res: Response) {
-    const user = jwtDecode.jwtDecode(req.cookies['jwt']) as ReadUserResponseDto;
+    const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
     const token = await this.userService.getToken(user.account);
     const result: ApiResponse<APIGuildMember> = await this.guildService.getMember(token, guildId, discordUserId);
     return res.status(result.statusCode).send(result);
@@ -67,15 +67,15 @@ export class GuildController {
   @Get(':guildId/messages/search')
   async searchMessage(@Param('guildId') guildId: string, @Query() query: string, @Req() req: Request, @Res() res: Response) {
     const queryString = req.originalUrl.split('?')[1];
-    const user = jwtDecode.jwtDecode(req.cookies['jwt']) as ReadUserResponseDto;
+    const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
     const token = await this.userService.getToken(user.account);
     const result: ApiResponse<APISearchMessage> = await this.guildService.searchMessage(token, guildId, queryString);
     return res.status(result.statusCode).send(result);
   }
 
-  @Delete(':guildId/members/:discordUserId')
-  async deleteMessage(@Param('guildId') channelId: string, @Param('discordUserId') messageId: string, @Req() req: Request, @Res() res: Response) {
-    const user = jwtDecode.jwtDecode(req.cookies['jwt']) as ReadUserResponseDto;
+  @Delete(':channelId/:messageId')
+  async deleteMessage(@Param('channelId') channelId: string, @Param('messageId') messageId: string, @Req() req: Request, @Res() res: Response) {
+    const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
     const token = await this.userService.getToken(user.account);
     const result: ApiResponse<null> = await this.guildService.deleteMessage(token, channelId, messageId);
     return res.status(result.statusCode).send(result);
