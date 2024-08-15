@@ -28,7 +28,7 @@ export const DiscordApi = {
         const error = err as AxiosError;
         response.message = error.message;
         response.success = false;
-        response.statusCode = error.status;
+        response.statusCode = error.response.status;
         return response;
       }
     }
@@ -54,7 +54,7 @@ export const DiscordApi = {
         const error = err as AxiosError;
         response.message = error.message;
         response.success = false;
-        response.statusCode = error.status;
+        response.statusCode = error.response.status;
         return response;
       }
     }
@@ -80,7 +80,7 @@ export const DiscordApi = {
         const error = err as AxiosError;
         response.message = error.message;
         response.success = false;
-        response.statusCode = error.status;
+        response.statusCode = error.response.status;
         return response;
       }
     }
@@ -106,7 +106,7 @@ export const DiscordApi = {
         const error = err as AxiosError;
         response.message = error.message;
         response.success = false;
-        response.statusCode = error.status;
+        response.statusCode = error.response.status;
         return response;
       }
     }
@@ -132,7 +132,7 @@ export const DiscordApi = {
         const error = err as AxiosError;
         response.message = error.message;
         response.success = false;
-        response.statusCode = error.status;
+        response.statusCode = error.response.status;
         return response;
       }
     }
@@ -158,7 +158,7 @@ export const DiscordApi = {
         const error = err as AxiosError;
         response.message = error.message;
         response.success = false;
-        response.statusCode = error.status;
+        response.statusCode = error.response.status;
         return response;
       }
     }
@@ -184,7 +184,7 @@ export const DiscordApi = {
         const error = err as AxiosError;
         response.message = error.message;
         response.success = false;
-        response.statusCode = error.status;
+        response.statusCode = error.response.status;
         return response;
       }
     }
@@ -210,7 +210,7 @@ export const DiscordApi = {
         const error = err as AxiosError;
         response.message = error.message;
         response.success = false;
-        response.statusCode = error.status;
+        response.statusCode = error.response.status;
         return response;
       }
     }
@@ -235,7 +235,7 @@ export const DiscordApi = {
         const error = err as AxiosError;
         response.message = error.message;
         response.success = false;
-        response.statusCode = error.status;
+        response.statusCode = error.response.status;
         return response;
       }
     }
