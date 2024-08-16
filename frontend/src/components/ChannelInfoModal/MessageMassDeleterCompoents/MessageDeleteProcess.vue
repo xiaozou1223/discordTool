@@ -127,7 +127,7 @@ const deletedMessages: Ref<APIMessage[]> = ref([])
 
 const MAX_WAIT_TIME = 1500
 const DEFAULT_SEARCH_SPEED = 300
-const DEFAULT_DELETED_SPEED = 50
+const DEFAULT_DELETED_SPEED = 300
 
 const messageDeleteProcessStore = useMessageDeleteProcessStore(props.channel.id)
 
