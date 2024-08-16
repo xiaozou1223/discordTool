@@ -14,7 +14,9 @@
     <div v-if="searchMessageResult">
       <div class="row" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
         <div class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bolder">
-          <span style="padding: 0px; margin-left: 10px; font-weight: bolder">已搜尋到{{ searchMessageResult.total_results }}則訊息</span>
+          <span style="padding: 0px; margin-left: 10px; font-weight: bolder"
+            >已搜尋到{{ searchMessageResult.messages.length === 0 ? 0 : searchMessageResult.total_results }}則訊息</span
+          >
         </div>
       </div>
       <div
@@ -40,7 +42,13 @@
         <button @click="emit('backToFilterPage')" class="btn btn-primary">返回</button>
       </div>
       <div v-if="searchMessageResult" class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bolder">
-        <button @click="deleteMessage" class="btn btn-danger" :disabled="!(searchMessageResult.total_results > 0)">刪除</button>
+        <button
+          @click="deleteMessage"
+          class="btn btn-danger"
+          :disabled="searchMessageResult.total_results <= 0 || searchMessageResult.messages.length === 0"
+        >
+          刪除
+        </button>
       </div>
     </div>
   </div>
