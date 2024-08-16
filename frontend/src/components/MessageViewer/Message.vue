@@ -8,8 +8,9 @@
     <!-- Message Content Section -->
     <div class="col message-content-col">
       <!-- Username -->
-      <div class="username">
-        {{ message.author.global_name }}
+      <div style="text-align: left">
+        <span class="username">{{ message.author.global_name }}</span>
+        <span class="timestamp">{{ formatTimestamp(message.timestamp) }}</span>
       </div>
 
       <!-- Message Content -->
@@ -43,6 +44,7 @@
 import type { APIAttachment, APIEmbed, APIGuild, APIMessage } from 'discord-api-types/v10'
 import { generateUserAvatarUrl, generateStickerUrl, generateEmojiUrl } from '../../functions/Discord'
 import { onMounted, ref, type Ref } from 'vue'
+import moment from 'moment'
 
 const messageContentHtml: Ref<string> = ref('')
 const props = defineProps<{ message: APIMessage; guild: APIGuild }>()
@@ -161,6 +163,19 @@ function generateEmbedHtml(embed: APIEmbed): string {
   }
   return embedHtml
 }
+
+const formatTimestamp = (timestamp: string | number | Date): string => {
+  const now = moment()
+  const messageTime = moment(timestamp)
+
+  if (messageTime.isSame(now, 'day')) {
+    return `今天 ${messageTime.format('HH:mm')}`
+  } else if (messageTime.isSame(now.subtract(1, 'days'), 'day')) {
+    return `昨天 ${messageTime.format('HH:mm')}`
+  } else {
+    return messageTime.format('YYYY/MM/DD HH:mm')
+  }
+}
 </script>
 
 <style>
@@ -209,6 +224,12 @@ function generateEmbedHtml(embed: APIEmbed): string {
   text-align: left;
   font-weight: bold;
   margin-bottom: 2px;
+}
+
+.timestamp {
+  margin-left: 3px;
+  color: #b9bbbe;
+  font-size: 12px;
 }
 
 .message-content {

@@ -31,7 +31,7 @@
       </div>
       <div class="row collapse" id="message-viewer" style="margin-right: 0px; margin-left: 0px; margin-top: 10px">
         <div class="container" style="max-height: 300px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ccc" ref="messagesViewer">
-          <Message v-for="message of searchMessageResult.messages" :message="message[0]" :guildChannels="guildChannels" :guild="guild" />
+          <Message v-for="message of reversedResultMessage" :message="message[0]" :guildChannels="guildChannels" :guild="guild" />
         </div>
       </div>
     </div>
@@ -40,9 +40,7 @@
         <button @click="emit('backToFilterPage')" class="btn btn-primary">返回</button>
       </div>
       <div v-if="searchMessageResult" class="col" style="text-align: center; padding-top: 5px; padding-bottom: 5px; font-weight: bolder">
-        <button @click="emit('startDelete', searchMessageResult)" class="btn btn-danger" :disabled="!(searchMessageResult.total_results > 0)">
-          批量刪除
-        </button>
+        <button @click="deleteMessage" class="btn btn-danger" :disabled="!(searchMessageResult.total_results > 0)">刪除</button>
       </div>
     </div>
   </div>
@@ -53,7 +51,7 @@ import { useUserStore } from '../../../stores/useUserStore'
 import { getMemberByUserIdAndGuildIdApi, searchMessagesApi } from '@/api/guild/guild'
 import type { APISearchMessage } from '@/common.class'
 import type { APIGuild } from 'discord-api-types/v10'
-import { ref, type Ref, onMounted } from 'vue'
+import { ref, type Ref, onMounted, computed } from 'vue'
 import { generateUserAvatarUrl, generateGuildIconUrl } from '../../../functions/Discord'
 import Message from '../../MessageViewer/Message.vue'
 import type { DiscordChannel } from '@/api/guild/dto/read-channel'
@@ -99,8 +97,21 @@ onMounted(async () => {
   console.log('searchMessage!')
   if (result.data) {
     searchMessageResult.value = result.data
-    searchMessageResult.value.messages.reverse()
     console.log(searchMessageResult.value)
+  }
+})
+
+function deleteMessage() {
+  const ok = confirm(`確定要刪除${searchMessageResult.value?.total_results}則訊息嗎?\n此動作不可逆`)
+  if (!ok || !searchMessageResult.value) {
+    return
+  }
+  emit('startDelete', searchMessageResult.value)
+}
+
+const reversedResultMessage = computed(() => {
+  if (searchMessageResult.value) {
+    return [...searchMessageResult.value.messages].reverse()
   }
 })
 </script>

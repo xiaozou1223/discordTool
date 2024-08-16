@@ -37,6 +37,7 @@
         (newSearchMessageResult) => {
           searchMessageResult = newSearchMessageResult
           step = Step.delete
+          messageDeleteProcessStore.isRunning = true
         }
       "
     />
@@ -46,6 +47,13 @@
       :guild="guild"
       :guildChannels="guildChannels"
       :search-message-result="searchMessageResult"
+      :channel="channel"
+      @back-to-filter-page="
+        () => {
+          step = Step.setFilter
+          messageDeleteProcessStore.isRunning = false
+        }
+      "
     />
   </div>
   <h4 v-else>無權限查看該頻道</h4>
@@ -60,6 +68,7 @@ import MessageFilterSetting from './MessageMassDeleterCompoents/MessageFilterSet
 import MessageSearcher from './MessageMassDeleterCompoents/MessageSearcher.vue'
 import MessageDeleteProcess from './MessageMassDeleterCompoents/MessageDeleteProcess.vue'
 import type { APISearchMessage } from '@/common.class'
+import { useMessageDeleteProcessStore } from '../../stores/useMessageDeleteProcessStore'
 
 interface FilterSetting {
   authorId: string
@@ -83,6 +92,8 @@ const props = defineProps<{
   hasViewPermission: boolean
   hasChannelManagePermission: boolean
 }>()
+
+const messageDeleteProcessStore = useMessageDeleteProcessStore(props.channel.id)
 </script>
 
 <style scoped>

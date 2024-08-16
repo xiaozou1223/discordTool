@@ -45,7 +45,7 @@
               >
             </li>
           </ul>
-          <button class="btn-close btn-close-white" type="button" aria-label="Close" @click="showModal = false"></button>
+          <button class="btn-close btn-close-white" type="button" aria-label="Close" @click="hideModal"></button>
         </div>
         <div class="modal-body" style="height: 80vh">
           <keep-alive>
@@ -93,6 +93,8 @@ import MessagesMassDeleter from './MessagesMassDeleter.vue'
 import MessageWatcher from './MessageWatcher.vue'
 import { hasRequiredPermission } from '../../functions/Discord'
 import { useUserStore } from '../../stores/useUserStore'
+import { useMessageDeleteProcessStore } from '../../stores/useMessageDeleteProcessStore'
+
 enum Page {
   none,
   info,
@@ -106,6 +108,8 @@ const channel: Ref<DiscordChannel> = ref(new DiscordChannel())
 const page: Ref<Page> = ref(Page.none)
 const userStore = useUserStore()
 
+let messageDeleteProcessStore = useMessageDeleteProcessStore('')
+
 defineProps<{
   guild: APIGuild
   guildChannels: DiscordChannel[]
@@ -114,6 +118,7 @@ defineProps<{
 
 async function openModal(inputChannel: DiscordChannel, newUserOwnChannelPermissions: bigint) {
   channel.value = inputChannel
+  messageDeleteProcessStore = useMessageDeleteProcessStore(inputChannel.id)
   showModal.value = true
   userOwnChannelPermissions.value = newUserOwnChannelPermissions
   page.value = Page.info
@@ -125,6 +130,14 @@ defineExpose({
 
 function switchPage(goPage: Page) {
   page.value = goPage
+}
+
+function hideModal() {
+  if (messageDeleteProcessStore.isRunning) {
+    alert('批量刪除正在運行中，如要離開請先中止後點擊返回按鈕')
+    return
+  }
+  showModal.value = false
 }
 </script>
 
