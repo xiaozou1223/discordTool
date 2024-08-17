@@ -169,7 +169,7 @@ async function deleteMessages() {
         const message = allMessages.value[index]
         currentDeletingMessage.value = message
         systemMessage.value = `刪除訊息... ( ${deletedMessages.value.length + 1} / ${totalMessageCount.value} )`
-        //await deleteMessagesApi(message.channel_id, message.id)
+        await deleteMessagesApi(message.channel_id, message.id)
         deletedMessages.value.push(message)
         break
       } catch (err) {
