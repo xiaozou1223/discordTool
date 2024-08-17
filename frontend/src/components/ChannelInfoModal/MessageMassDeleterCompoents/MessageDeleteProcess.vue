@@ -132,12 +132,6 @@ const DEFAULT_DELETED_SPEED = 300
 const messageDeleteProcessStore = useMessageDeleteProcessStore(props.channel.id)
 
 onMounted(async () => {
-  allMessages.value.push(
-    ...props.searchMessageResult.messages.map((messageArray) => {
-      return messageArray[0]
-    }),
-  )
-  totalMessageCount.value = props.searchMessageResult.total_results
   await startProcess()
 })
 
@@ -165,7 +159,6 @@ async function loadAllMessage() {
     await waitForResume()
     await wait(speed.value)
   }
-  messageDeleteProcessStore.isMessageLoaded = true
 }
 
 async function deleteMessages() {
@@ -176,7 +169,7 @@ async function deleteMessages() {
         const message = allMessages.value[index]
         currentDeletingMessage.value = message
         systemMessage.value = `刪除訊息... ( ${deletedMessages.value.length + 1} / ${totalMessageCount.value} )`
-        await deleteMessagesApi(message.channel_id, message.id)
+        //await deleteMessagesApi(message.channel_id, message.id)
         deletedMessages.value.push(message)
         break
       } catch (err) {
@@ -215,13 +208,24 @@ async function handleRateLimit(retryAfter: number) {
 }
 
 async function startProcess() {
+  console.log('startMassDeleteProcess!')
   messageDeleteProcessStore.isStopping = false
+  messageDeleteProcessStore.isMessageLoaded = false
+  messageDeleteProcessStore.isFinished = false
+  totalMessageCount.value = props.searchMessageResult.total_results
+  deletedMessages.value = []
+  allMessages.value = props.searchMessageResult.messages.map((messageArray) => {
+    return messageArray[0]
+  })
   if (allMessages.value.length < totalMessageCount.value) {
     await loadAllMessage()
   }
-  systemMessage.value = '即將開始刪除訊息'
-  await wait(3000)
   if (allMessages.value.length >= totalMessageCount.value) {
+    messageDeleteProcessStore.isMessageLoaded = true
+    for (let i = 3; i > 0 && !messageDeleteProcessStore.isStopping; i--) {
+      systemMessage.value = `${i}秒後開始刪除訊息...`
+      await wait(1000)
+    }
     await deleteMessages()
   }
   if (deletedMessages.value.length === allMessages.value.length) {
@@ -286,6 +290,9 @@ const deleteProgressPercentage = computed(() => {
 })
 const reversedDeletedMessages = computed(() => {
   return [...deletedMessages.value].reverse()
+})
+const allMessagesLength = computed(() => {
+  return allMessages.value.length
 })
 </script>
 

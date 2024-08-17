@@ -195,13 +195,11 @@ function generateSearchQuery() {
   }
   if (startDate.value) {
     const timestamp = moment(startDate.value).valueOf()
-    console.log(timestamp)
     const snowflake = generateDiscordSnowflakeFromDate(timestamp)
     query += `&min_id=${snowflake}`
   }
   if (endDate.value) {
     const timestamp = moment(endDate.value).valueOf()
-    console.log(timestamp)
     const snowflake = generateDiscordSnowflakeFromDate(timestamp)
     query += `&max_id=${snowflake}`
   }

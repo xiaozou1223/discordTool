@@ -100,7 +100,6 @@ onMounted(async () => {
     authorName.value = 'ALL'
     authorIcon.value = generateGuildIconUrl(props.guild)
   }
-  console.log(props.filterSetting.searchQuery)
   const result = await searchMessagesApi(props.guild.id, props.filterSetting.searchQuery)
   console.log('searchMessage!')
   if (result.data) {
