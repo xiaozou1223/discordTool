@@ -94,10 +94,14 @@ onUnmounted(() => {
 })
 
 function logout() {
+  const ok = confirm('確定要登出嗎?')
+  if (!ok) {
+    return
+  }
   console.log('Logout!')
   Cookies.remove('jwt')
   userStore.reloadJwt()
-  location.reload()
+  router.push('Login')
 }
 
 function switchRouter(routerName: string) {

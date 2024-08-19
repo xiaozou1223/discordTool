@@ -11,20 +11,6 @@ export const useUserStore = defineStore('user', () => {
   const jwt = ref<string | null | undefined>(null)
   const iconUrl = ref('/unknow.jpg')
 
-  const checkLoginStatus = () => {
-    const currentRouter = window.location.pathname
-    if (jwt.value) {
-      reloadUser()
-      if (currentRouter === '/login' || currentRouter === '/' || currentRouter === '/signup') {
-        router.push({ name: 'DiscordServer' })
-      }
-    } else {
-      if (currentRouter !== '/login') {
-        router.push({ name: 'Login' })
-      }
-    }
-  }
-
   const reloadUser = () => {
     console.log('reloadUser!')
     if (jwt.value) {
@@ -43,7 +29,6 @@ export const useUserStore = defineStore('user', () => {
 
   watch(jwt, () => {
     console.log('jwt發生變化!')
-    checkLoginStatus()
   })
   watch(user, () => {
     console.log('user發生變化!')

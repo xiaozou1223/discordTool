@@ -28,14 +28,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { ref } from 'vue'
 import { loginAPI } from '../api/user/user'
 import type { ReadUserResponseDto } from '@/api/user/dto/read-user.dto'
 import type { ApiResponse } from '@/common.class'
-import router from '@/router'
-import { useUserStore } from '../stores/useUserStore'
 
-const userStore = useUserStore()
 const account = ref('')
 const password = ref('')
 
@@ -48,8 +45,7 @@ async function login() {
   }
   await loginAPI(account.value, password.value)
     .then(() => {
-      router.push({ name: 'DiscordServer' })
-      userStore.reloadJwt()
+      window.location.reload()
     })
     .catch((res: any) => {
       const result: ApiResponse<ReadUserResponseDto> = res
