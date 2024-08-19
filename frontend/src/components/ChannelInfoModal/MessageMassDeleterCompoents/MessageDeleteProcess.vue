@@ -291,9 +291,6 @@ const deleteProgressPercentage = computed(() => {
 const reversedDeletedMessages = computed(() => {
   return [...deletedMessages.value].reverse()
 })
-const allMessagesLength = computed(() => {
-  return allMessages.value.length
-})
 </script>
 
 <style scoped>
