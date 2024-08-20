@@ -9,6 +9,7 @@ import { ReadUserResponseDto } from './dto/read-user.dto';
 import { DeleteResult } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
 import * as jwtDecode from 'jwt-decode';
+import { generateJwt } from 'src/jwt';
 @Controller('/api/user')
 export class UserController {
   constructor(
@@ -24,16 +25,14 @@ export class UserController {
 
   @Get()
   async findOne(@Req() req: Request, @Res() res: Response) {
-    const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
-    const result: ApiResponse<ReadUserResponseDto> = await this.userService.findOneByAccount(user.account);
+    const result: ApiResponse<ReadUserResponseDto> = await this.userService.findOneByAccount(req.user.account);
     return res.status(result.statusCode).send(result);
   }
 
   @Patch()
   async update(@Req() req: Request, @Body() updateUserDto: UpdateUserDto, @Res() res: Response) {
-    const user: ReadUserResponseDto = jwtDecode.jwtDecode(req.cookies['jwt']);
-    const result: ApiResponse<ReadUserResponseDto> = await this.userService.update(user.account, updateUserDto, res);
-    const jwtResult = await this.authService.login(result.data as ReadUserResponseDto);
+    const result: ApiResponse<ReadUserResponseDto> = await this.userService.update(req.user.account, updateUserDto, res);
+    const jwtResult = generateJwt(result.data as ReadUserResponseDto);
     res.cookie('jwt', jwtResult.accessToken, { httpOnly: false, path: '/', secure: false });
     return res.status(result.statusCode).send(result);
   }

@@ -11,5 +11,6 @@ const entities = [User];
   imports: [TypeOrmModule.forFeature(entities)],
   controllers: [UserController],
   providers: [UserService, AuthService],
+  exports: [UserService],
 })
 export class UserModule {}

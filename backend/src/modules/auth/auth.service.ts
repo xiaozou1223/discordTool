@@ -3,9 +3,6 @@ import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcrypt';
 import { ApiResponse } from 'src/common.class';
 import { ReadUserResponseDto } from '../user/dto/read-user.dto';
-import * as jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET;
 @Injectable()
 export class AuthService {
   constructor(private readonly userService: UserService) {}
@@ -26,18 +23,5 @@ export class AuthService {
       response.message = '登入失敗!';
       return response;
     }
-  }
-
-  async login(user: ReadUserResponseDto) {
-    const payload: ReadUserResponseDto = {
-      account: user.account,
-      discordUserId: user.discordUserId,
-      discordUserData: user.discordUserData,
-      isTokenValid: user.isTokenValid,
-    };
-    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '5d' });
-    return {
-      accessToken,
-    };
   }
 }

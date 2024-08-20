@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { ReadUserResponseDto } from '../user/dto/read-user.dto';
+import { generateJwt } from 'src/jwt';
 
 @Controller('/api/auth')
 export class AuthController {
@@ -13,7 +14,7 @@ export class AuthController {
     const { account, password } = body;
     const result = await this.authService.validateUser(account, password);
     if (result.success) {
-      const jwtResult = await this.authService.login(result.data as ReadUserResponseDto);
+      const jwtResult = generateJwt(result.data as ReadUserResponseDto);
       res.cookie('jwt', jwtResult.accessToken, { httpOnly: false, path: '/', secure: false });
     }
     return res.status(result.statusCode).send(result);
