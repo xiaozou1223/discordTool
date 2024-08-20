@@ -86,8 +86,8 @@ export const DiscordApi = {
     }
   },
 
-  async getGuild(token: string, guildId: string): Promise<ApiResponse<APIGuild[]>> {
-    const response = new ApiResponse<APIGuild[]>();
+  async getGuild(token: string, guildId: string): Promise<ApiResponse<APIGuild>> {
+    const response = new ApiResponse<APIGuild>();
     try {
       const dcResponse = await axios.get(`${host}/${version}/guilds/${guildId}`, {
         headers: {
@@ -95,7 +95,7 @@ export const DiscordApi = {
         },
       });
       if (dcResponse.status === HttpStatus.OK) {
-        response.data = dcResponse.data as APIGuild[];
+        response.data = dcResponse.data as APIGuild;
         response.message = '讀取成功';
         response.success = true;
         response.statusCode = HttpStatus.OK;

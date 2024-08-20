@@ -58,7 +58,7 @@ export class GuildService {
     return await DiscordApi.deleteMessage(token, channelId, messageId);
   }
 
-  async getGuildInfo(token: string, guildId: string): Promise<ApiResponse<APIGuild[]>> {
+  async getGuildInfo(token: string, guildId: string): Promise<ApiResponse<APIGuild>> {
     return await DiscordApi.getGuild(token, guildId);
   }
 }
